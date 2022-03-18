@@ -4,10 +4,13 @@ module.exports = {
     "./components/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
-    colors: {
-      blackgreen: "#031201",
-      darkgreen: "#092006",
-      green: "#50B661",
+    extend: {
+      colors: {
+        blackgreen: "#031201",
+        darkgreen: "#092006",
+        green: "#50B661",
+        white: "rgb(255 255 255)",
+      },
     },
   },
   plugins: [],
