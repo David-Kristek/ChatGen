@@ -34,7 +34,14 @@ export default function HomeContainer({ children }: Props) {
             className="rounded-full h-12"
           />
           <span className="text-white text-xl">{auth.user?.displayName}</span>
-          <Menu logout={auth.logout} size={3} />
+          <Menu
+            logout={auth.logout}
+            size={3}
+            items={[
+              { title: "#abc123" },
+              { title: "Odhlásit", callback: auth.logout },
+            ]}
+          />
         </div>
         {children}
       </div>

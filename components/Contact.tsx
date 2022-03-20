@@ -10,6 +10,10 @@ interface Props {
 }
 
 export default function Contact({ user, lastMessage, active }: Props) {
+  const menuItems = [
+    { title: "Odstranit konverzaci" },
+    { title: "Zablokovat uživatele" },
+  ];
   return (
     <div
       className={`pl-14 py-4  flex  mx-5 items-center relative rounded-2xl text-white mb-3 group cursor-pointer hover:bg-blackgreen ${
@@ -30,6 +34,7 @@ export default function Contact({ user, lastMessage, active }: Props) {
       <Menu
         size={3}
         className="absolute right-2 opacity-0 group-hover:opacity-100"
+        items={menuItems}
       />
     </div>
   );
