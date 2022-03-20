@@ -7,6 +7,21 @@
         @apply flex justify-center items-center
     }
     .hover {
-        @apply hover:scale-105 active:scale-100
+        @apply transition-all hover:scale-105 active:scale-100
+    }
+    .hover2 {
+        @apply transition-all hover:scale-110 active:scale-95
+    }
+    .input {
+        @apply bg-[#C4C4C4] rounded-2xl px-4 py-2  focus:outline-none text-base  placeholder:text-gray-600 
+    }
+    .icon {
+        @apply cursor-pointer text-4xl text-lightgreen hover2 hover:text-white
+    }
+    .heading {
+        @apply text-white text-xl
+    }
+    .btn {
+        @apply block bg-lightgreen text-sm px-5 py-2 rounded-2xl my-4 hover shadow-sm shadow-green-500 text-black
     }
   }
