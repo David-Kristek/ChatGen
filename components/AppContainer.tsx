@@ -1,19 +1,23 @@
-import Logo from "../components/Logo";
+import Logo from "./Logo";
 import { withProtected } from "../lib/Routes";
-import Contact from "../components/Contact";
-import Menu from "../components/Menu";
+import Contact from "./Contact";
+import Menu from "./Menu";
 import { useAuth } from "../context/AuthContext";
 import ContactList from "./ContactList";
 import { useRouter } from "next/router";
+import { ref, set, push } from "firebase/database";
+
 interface Props {
   children: React.ReactNode;
 }
-export default function HomeContainer({ children }: Props) {
+export default function AppContainer({ children }: Props) {
   const auth = useAuth();
+  
   const router = useRouter();
   const addContact = () => {
-    router.push("/add_contact");
+    router.push("/add_chat");
   };
+  console.log(   router.basePath);
   return (
     <div className="grid grid-cols-5">
       <div className="h-[100vh] bg-darkgreen pt-5 relative">
@@ -38,7 +42,7 @@ export default function HomeContainer({ children }: Props) {
             logout={auth.logout}
             size={3}
             items={[
-              { title: "#abc123" },
+              { title: "#" + auth.user?.key},
               { title: "Odhlásit", callback: auth.logout },
             ]}
           />

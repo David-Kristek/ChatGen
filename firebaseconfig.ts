@@ -1,6 +1,7 @@
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getAnalytics } from "firebase/analytics";
+import { collection, getDocs, getFirestore } from "firebase/firestore";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -13,14 +14,29 @@ const firebaseConfig = {
   storageBucket: "chatgen-a5512.appspot.com",
   messagingSenderId: "826991074169",
   appId: "1:826991074169:web:c61544d618d2e1590aeda8",
-  measurementId: "G-S3118RVTR7"
+  measurementId: "G-S3118RVTR7",
 };
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 // const analytics = getAnalytics(app);
+export const db = getFirestore();
 
-export const auth = getAuth()
+const usersRef = collection(db, "users");
+
+getDocs(usersRef)
+  .then((snapshot) => {
+    let users: any[] = [];
+    snapshot.docs.forEach((doc) => {
+      users.push({ ...doc.data(), id: doc.id });
+    });
+
+    console.log(users);
+  })
+  .catch((err) => console.log(err.message));
+
+export const auth = getAuth();
+
 // const firebaseConfig = {
 //     apiKey: process.env.API_KEY,
 //     authDomain: process.env.DOMAIN + ".firebaseapp.com",

@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from "react";
-import HomeContainer from "../../components/HomeContainer";
+import AppContainer from "../../components/AppContainer";
 import Message from "../../components/Message";
 import { withProtected } from "../../lib/Routes";
 import { PageProps } from "../_app";
@@ -23,7 +23,7 @@ function Chat({ auth }: PageProps) {
   );
 
   return (
-    <HomeContainer>
+    <>
       <div className="flex-center justify-start pl-[6%] pt-5 pb-3">
         <img
           src={auth.user?.img}
@@ -48,6 +48,7 @@ function Chat({ auth }: PageProps) {
             displayName: "John Alepskij Lol",
             img: "https://lh3.googleusercontent.com/a/AATXAJz4sFHG7AaYOKlstNyvAdIh5Gw5tBgQTt-FP3b2=s96-c",
             email: "david.kristek05@gmail.com",
+            key: ""
           }}
         />
         <Message text="Ahoj jak se máš ?" />
@@ -58,27 +59,7 @@ function Chat({ auth }: PageProps) {
             displayName: "John Alepskij Lol",
             img: "https://lh3.googleusercontent.com/a/AATXAJz4sFHG7AaYOKlstNyvAdIh5Gw5tBgQTt-FP3b2=s96-c",
             email: "david.kristek05@gmail.com",
-          }}
-        />
-        <Message text="Dobře se mám a co ty jak se daří? Doufám, že dobře no jo vlastne ted musim napsat neco velmi dlouheho. Tak teda jo no. Tak prej jeste delsi. No jo tak ani toto nestaci. Tyblaho to je delka. Tak a poslední větička." />
-        <Message text="Ahoj jak se máš ?" />
-        <Message
-          text="Dobře se mám a co ty jak se daří? Doufám, že dobře no jo vlastne ted musim napsat neco velmi dlouheho. Tak teda jo no. Tak prej jeste delsi. No jo tak ani toto nestaci. Tyblaho to je delka. Tak a poslední větička."
-          received={{
-            uid: "",
-            displayName: "John Alepskij Lol",
-            img: "https://lh3.googleusercontent.com/a/AATXAJz4sFHG7AaYOKlstNyvAdIh5Gw5tBgQTt-FP3b2=s96-c",
-            email: "david.kristek05@gmail.com",
-          }}
-        />
-        <Message text="Ahoj jak se máš ?" />
-        <Message
-          text="Dobře se mám a co ty jak se daří? Doufám, že dobře no jo vlastne ted musim napsat neco velmi dlouheho. Tak teda jo no. Tak prej jeste delsi. No jo tak ani toto nestaci. Tyblaho to je delka. Tak a poslední větička."
-          received={{
-            uid: "",
-            displayName: "John Alepskij Lol",
-            img: "https://lh3.googleusercontent.com/a/AATXAJz4sFHG7AaYOKlstNyvAdIh5Gw5tBgQTt-FP3b2=s96-c",
-            email: "david.kristek05@gmail.com",
+            key: ""
           }}
         />
         <Message text="Dobře se mám a co ty jak se daří? Doufám, že dobře no jo vlastne ted musim napsat neco velmi dlouheho. Tak teda jo no. Tak prej jeste delsi. No jo tak ani toto nestaci. Tyblaho to je delka. Tak a poslední větička." />
@@ -90,6 +71,30 @@ function Chat({ auth }: PageProps) {
             displayName: "John Alepskij Lol",
             img: "https://lh3.googleusercontent.com/a/AATXAJz4sFHG7AaYOKlstNyvAdIh5Gw5tBgQTt-FP3b2=s96-c",
             email: "david.kristek05@gmail.com",
+            key: ""
+          }}
+        />
+        <Message text="Ahoj jak se máš ?" />
+        <Message
+          text="Dobře se mám a co ty jak se daří? Doufám, že dobře no jo vlastne ted musim napsat neco velmi dlouheho. Tak teda jo no. Tak prej jeste delsi. No jo tak ani toto nestaci. Tyblaho to je delka. Tak a poslední větička."
+          received={{
+            uid: "",
+            displayName: "John Alepskij Lol",
+            img: "https://lh3.googleusercontent.com/a/AATXAJz4sFHG7AaYOKlstNyvAdIh5Gw5tBgQTt-FP3b2=s96-c",
+            email: "david.kristek05@gmail.com",
+            key: ""
+          }}
+        />
+        <Message text="Dobře se mám a co ty jak se daří? Doufám, že dobře no jo vlastne ted musim napsat neco velmi dlouheho. Tak teda jo no. Tak prej jeste delsi. No jo tak ani toto nestaci. Tyblaho to je delka. Tak a poslední větička." />
+        <Message text="Ahoj jak se máš ?" />
+        <Message
+          text="Dobře se mám a co ty jak se daří? Doufám, že dobře no jo vlastne ted musim napsat neco velmi dlouheho. Tak teda jo no. Tak prej jeste delsi. No jo tak ani toto nestaci. Tyblaho to je delka. Tak a poslední větička."
+          received={{
+            uid: "",
+            displayName: "John Alepskij Lol",
+            img: "https://lh3.googleusercontent.com/a/AATXAJz4sFHG7AaYOKlstNyvAdIh5Gw5tBgQTt-FP3b2=s96-c",
+            email: "david.kristek05@gmail.com",
+            key: ""
           }}
         />
         <Message text="Ahoj jak se máš ?" />
@@ -111,7 +116,7 @@ function Chat({ auth }: PageProps) {
           <AiOutlinePlusCircle className="icon" />
         </div>
       </form>
-    </HomeContainer>
+      </>
   );
 }
 export default withProtected(Chat);

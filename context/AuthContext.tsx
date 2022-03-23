@@ -1,6 +1,9 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { onAuthStateChanged, signOut, signInWithPopup } from "firebase/auth";
-import { auth } from "../firebaseconfig";
+import { ref, set } from "firebase/database";
+
+import { auth, db } from "../firebaseconfig";
+import { addDoc, collection, doc, setDoc } from "firebase/firestore";
 
 export interface AuthContextInterface {
   user: User;
@@ -8,9 +11,9 @@ export interface AuthContextInterface {
   logout: () => Promise<void>;
 }
 const AuthContext = createContext<AuthContextInterface>({
-  user: null, 
-  signin: async () => {}, 
-  logout: async () => {}, 
+  user: null,
+  signin: async () => {},
+  logout: async () => {},
 });
 
 export const useAuth = () => useContext(AuthContext);
@@ -20,6 +23,8 @@ export type User = {
   email: string;
   displayName: string;
   img: string;
+  key: string;
+  friends?: string[];
 } | null;
 
 export const AuthContextProvider = ({
@@ -33,13 +38,22 @@ export const AuthContextProvider = ({
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user: any) => {
       if (user) {
-        setUser({
-          uid: user.uid,
+        const uid = user.uid;
+        const userObj = {
           email: user.email,
           displayName: user.displayName,
           img: auth.currentUser?.photoURL || "",
-        });
+          // nedomyslene
+          key:
+            uid[0] +
+            uid[uid.length - 1] +
+            uid[uid.length - 2] +
+            uid[2] +
+            uid[1],
+        };
+        setUser({ ...userObj, uid });
         console.log(auth.currentUser);
+        setDoc(doc(db, "users", user.uid), userObj);
       } else {
         setUser(null);
       }
