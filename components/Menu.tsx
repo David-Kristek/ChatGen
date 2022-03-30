@@ -54,6 +54,7 @@ export default function Menu({ logout, size, className, items }: Props) {
                   console.log("leave");
                   setOnMenu(false);
                 }}
+                key={index}
               >
                 {item.title}
               </li>

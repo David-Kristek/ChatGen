@@ -10,7 +10,7 @@ export default function ContactList() {
   return (
     <div className="mt-10">
       {chats &&
-        chats.map((chats) => {
+        chats.map((chats, index) => {
           let chatId; 
           let user;
           // if (chats.direct) {
@@ -21,7 +21,7 @@ export default function ContactList() {
           });
           // presunot do contactu vsechno
           // }
-          return <Contact user={user} chatId={chats.id} lastMessage="Ahoj jak se máš ?" />;
+          return <Contact user={user} chatId={chats.id} lastMessage="Ahoj jak se máš ?" key={index}/>;
         })}
       {/* <Contact
         user={{

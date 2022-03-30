@@ -5,23 +5,30 @@ import { withProtected } from "../../lib/Routes";
 import { PageProps } from "../_app";
 import { MdAddPhotoAlternate, MdSend } from "react-icons/md";
 import { AiOutlinePlusCircle } from "react-icons/ai";
+import { sendChatMessage, useGetChats, useGetMessages } from "../../lib/Chats";
+import { useRouter } from "next/router";
+import { onSnapshot, doc, collection } from "firebase/firestore";
+import { db } from "../../firebaseconfig";
 
 function Chat({ auth }: PageProps) {
   const bottomOfChat = useRef<HTMLDivElement>(null);
+  const router = useRouter();
+  const { id } = router.query;
   const scrollToBottom = () => {
     if (!bottomOfChat.current) return;
-    console.log("scrolling");
     bottomOfChat.current.scrollIntoView({ behavior: "smooth" });
   };
   const [messageInput, setMessageInput] = useState("");
-  useEffect(
-    () => {
-      setTimeout(scrollToBottom, 100);
-    },
-    // [messages]
-    []
-  );
+  const [messages] = useGetMessages(String(id));
 
+  const onSubmit = async (e: any) => {
+    e.preventDefault();
+    await sendChatMessage(messageInput, String(id), auth.user?.uid ?? "");
+    setMessageInput("");
+  };
+  useEffect(() => {
+    scrollToBottom(), console.log(messages);
+  }, [scrollToBottom]);
   return (
     <>
       <div className="flex-center justify-start pl-[6%] pt-5 pb-3">
@@ -40,83 +47,36 @@ function Chat({ auth }: PageProps) {
         </div>
       </div>
       <div className="overflow-auto relative  h-[calc(100vh-175px)]">
-        <Message text="Ahoj jak se máš ?" />
-        <Message
-          text="Dobře se mám a co ty jak se daří? Doufám, že dobře no jo vlastne ted musim napsat neco velmi dlouheho. Tak teda jo no. Tak prej jeste delsi. No jo tak ani toto nestaci. Tyblaho to je delka. Tak a poslední větička."
-          received={{
-            uid: "",
-            displayName: "John Alepskij Lol",
-            img: "https://lh3.googleusercontent.com/a/AATXAJz4sFHG7AaYOKlstNyvAdIh5Gw5tBgQTt-FP3b2=s96-c",
-            email: "david.kristek05@gmail.com",
-            key: ""
-          }}
-        />
-        <Message text="Ahoj jak se máš ?" />
-        <Message
-          text="Dobře se mám a co ty jak se daří? Doufám, že dobře no jo vlastne ted musim napsat neco velmi dlouheho. Tak teda jo no. Tak prej jeste delsi. No jo tak ani toto nestaci. Tyblaho to je delka. Tak a poslední větička."
-          received={{
-            uid: "",
-            displayName: "John Alepskij Lol",
-            img: "https://lh3.googleusercontent.com/a/AATXAJz4sFHG7AaYOKlstNyvAdIh5Gw5tBgQTt-FP3b2=s96-c",
-            email: "david.kristek05@gmail.com",
-            key: ""
-          }}
-        />
-        <Message text="Dobře se mám a co ty jak se daří? Doufám, že dobře no jo vlastne ted musim napsat neco velmi dlouheho. Tak teda jo no. Tak prej jeste delsi. No jo tak ani toto nestaci. Tyblaho to je delka. Tak a poslední větička." />
-        <Message text="Ahoj jak se máš ?" />
-        <Message
-          text="Dobře se mám a co ty jak se daří? Doufám, že dobře no jo vlastne ted musim napsat neco velmi dlouheho. Tak teda jo no. Tak prej jeste delsi. No jo tak ani toto nestaci. Tyblaho to je delka. Tak a poslední větička."
-          received={{
-            uid: "",
-            displayName: "John Alepskij Lol",
-            img: "https://lh3.googleusercontent.com/a/AATXAJz4sFHG7AaYOKlstNyvAdIh5Gw5tBgQTt-FP3b2=s96-c",
-            email: "david.kristek05@gmail.com",
-            key: ""
-          }}
-        />
-        <Message text="Ahoj jak se máš ?" />
-        <Message
-          text="Dobře se mám a co ty jak se daří? Doufám, že dobře no jo vlastne ted musim napsat neco velmi dlouheho. Tak teda jo no. Tak prej jeste delsi. No jo tak ani toto nestaci. Tyblaho to je delka. Tak a poslední větička."
-          received={{
-            uid: "",
-            displayName: "John Alepskij Lol",
-            img: "https://lh3.googleusercontent.com/a/AATXAJz4sFHG7AaYOKlstNyvAdIh5Gw5tBgQTt-FP3b2=s96-c",
-            email: "david.kristek05@gmail.com",
-            key: ""
-          }}
-        />
-        <Message text="Dobře se mám a co ty jak se daří? Doufám, že dobře no jo vlastne ted musim napsat neco velmi dlouheho. Tak teda jo no. Tak prej jeste delsi. No jo tak ani toto nestaci. Tyblaho to je delka. Tak a poslední větička." />
-        <Message text="Ahoj jak se máš ?" />
-        <Message
-          text="Dobře se mám a co ty jak se daří? Doufám, že dobře no jo vlastne ted musim napsat neco velmi dlouheho. Tak teda jo no. Tak prej jeste delsi. No jo tak ani toto nestaci. Tyblaho to je delka. Tak a poslední větička."
-          received={{
-            uid: "",
-            displayName: "John Alepskij Lol",
-            img: "https://lh3.googleusercontent.com/a/AATXAJz4sFHG7AaYOKlstNyvAdIh5Gw5tBgQTt-FP3b2=s96-c",
-            email: "david.kristek05@gmail.com",
-            key: ""
-          }}
-        />
-        <Message text="Ahoj jak se máš ?" />
-
-        <Message text="Dobře se mám a co ty jak se daří? Doufám, že dobře no jo vlastne ted musim napsat neco velmi dlouheho. Tak teda jo no. Tak prej jeste delsi. No jo tak ani toto nestaci. Tyblaho to je delka. Tak a poslední větička." />
+        {messages.map((message) => (
+          <Message
+            text={message.body}
+            received={
+              auth.user?.uid != message.sendFrom?.uid
+                ? message.sendFrom
+                : undefined
+            }
+            key={message.id}
+          />
+        ))}
 
         <div ref={bottomOfChat}></div>
       </div>
-      <form className="w-full h-16 relative">
+      <form className="w-full h-16 relative" onSubmit={onSubmit}>
         <div className="absolute bottom-0 flex gap-x-4  inset-x-0 px-10">
           {/* pri psani prodlouzeni inputu */}
           <input
             type="text"
             className="input w-[85%]"
             placeholder="Napište @JohnDoe ..."
+            onChange={(e) => setMessageInput(e.target.value)}
+            value={messageInput}
           />
-          <MdSend className="icon" />
+          <MdSend className="icon" onClick={onSubmit} />
           <MdAddPhotoAlternate className="icon" />
           <AiOutlinePlusCircle className="icon" />
         </div>
       </form>
-      </>
+    </>
   );
 }
 export default withProtected(Chat);

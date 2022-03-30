@@ -12,12 +12,11 @@ interface Props {
 }
 export default function AppContainer({ children }: Props) {
   const auth = useAuth();
-  
+
   const router = useRouter();
   const addContact = () => {
     router.push("/add_chat");
   };
-  console.log(   router.basePath);
   return (
     <div className="grid grid-cols-5">
       <div className="h-[100vh] bg-darkgreen pt-5 relative">
@@ -42,7 +41,7 @@ export default function AppContainer({ children }: Props) {
             logout={auth.logout}
             size={3}
             items={[
-              { title: "#" + auth.user?.key},
+              { title: "#" + auth.user?.key },
               { title: "Odhlásit", callback: auth.logout },
             ]}
           />
