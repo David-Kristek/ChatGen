@@ -5,11 +5,11 @@ import Contact from "./Contact";
 
 export default function ContactList() {
   const auth = useAuth();
-  const [chats] = useGetChats(auth.user?.uid || "");
+  // const [chats] = useGetChats(auth.user?.uid || "");
 
   return (
     <div className="mt-10">
-      {chats &&
+      {/* {chats &&
         chats.map((chats, index) => {
           let chatId; 
           let user;
@@ -22,7 +22,7 @@ export default function ContactList() {
           // presunot do contactu vsechno
           // }
           return <Contact user={user} chatId={chats.id} lastMessage="Ahoj jak se máš ?" key={index}/>;
-        })}
+        })} */}
       {/* <Contact
         user={{
           uid: "",

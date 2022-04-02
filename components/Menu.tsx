@@ -6,13 +6,12 @@ type MenuItem = {
   title: string;
 };
 interface Props {
-  logout?: () => {};
   size?: number;
   className?: string;
   items?: MenuItem[];
 }
 
-export default function Menu({ logout, size, className, items }: Props) {
+export default function Menu({ size, className, items }: Props) {
   const [opended, setOpended] = useState(false);
   const [onMenu, setOnMenu] = useState(false);
   const open = () => {

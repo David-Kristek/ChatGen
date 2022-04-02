@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import AddContact from "../components/AddContact";
 import AppContainer from "../components/AppContainer";
-import { withProtected } from "../lib/Routes";
 
 function add_chat() {
 
@@ -24,4 +23,4 @@ function add_chat() {
       </div>
   );
 }
-export default withProtected(add_chat);
+export default add_chat;

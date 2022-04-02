@@ -20,22 +20,12 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 // const analytics = getAnalytics(app);
-export const db = getFirestore();
+// export const db = getFirestore();
 
-const usersRef = collection(db, "users");
+// const usersRef = collection(db, "users");
 
-getDocs(usersRef)
-  .then((snapshot) => {
-    let users: any[] = [];
-    snapshot.docs.forEach((doc) => {
-      users.push({ ...doc.data(), id: doc.id });
-    });
 
-    console.log(users);
-  })
-  .catch((err) => console.log(err.message));
-
-export const auth = getAuth();
+// export const auth = getAuth();
 
 // const firebaseConfig = {
 //     apiKey: process.env.API_KEY,

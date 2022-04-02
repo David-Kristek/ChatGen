@@ -1,18 +1,17 @@
 import Logo from "./Logo";
-import { withProtected } from "../lib/Routes";
 import Contact from "./Contact";
 import Menu from "./Menu";
 import { useAuth } from "../context/AuthContext";
 import ContactList from "./ContactList";
 import { useRouter } from "next/router";
 import { ref, set, push } from "firebase/database";
+import { signOut, useSession } from "next-auth/react";
 
 interface Props {
   children: React.ReactNode;
 }
 export default function AppContainer({ children }: Props) {
-  const auth = useAuth();
-
+  const { data: auth } = useSession();
   const router = useRouter();
   const addContact = () => {
     router.push("/add_chat");
@@ -32,17 +31,16 @@ export default function AppContainer({ children }: Props) {
       <div className="col-span-4">
         <div className="absolute right-10 top-5 flex-center gap-x-3">
           <img
-            src={auth.user?.img}
+            src={auth?.user?.image ?? ""}
             alt="Profile image"
             className="rounded-full h-12"
           />
-          <span className="text-white text-xl">{auth.user?.displayName}</span>
+          <span className="text-white text-xl">{auth?.user?.name}</span>
           <Menu
-            logout={auth.logout}
             size={3}
             items={[
-              { title: "#" + auth.user?.key },
-              { title: "Odhlásit", callback: auth.logout },
+              { title: "#" + auth?.user?.name },
+              { title: "Odhlásit", callback: signOut },
             ]}
           />
         </div>

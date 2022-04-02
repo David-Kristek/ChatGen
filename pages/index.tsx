@@ -15,4 +15,4 @@ function Home({ auth }: PageProps) {
   );
 }
 
-export default withProtected(Home);
+export default Home;
