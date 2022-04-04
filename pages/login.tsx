@@ -3,7 +3,6 @@ import { useRouter } from "next/router";
 import React from "react";
 import LoginWith from "../components/LoginWith";
 import Logo from "../components/Logo";
-import { withPublic } from "../lib/Routes";
 function login() {
   const { status } = useSession();
   const router = useRouter();
@@ -22,4 +21,4 @@ function login() {
     </div>
   );
 }
-export default withPublic(login);
+export default login;

@@ -1,4 +1,5 @@
 export type User = {
+  _id: string;
   name: string;
   email: string;
   image: string;
@@ -7,12 +8,17 @@ export type User = {
   friends: User[];
 };
 export type Chat = {
-  users: User[];
-  name: string;
-  image: string;
+  _id: string;
+  members: User[];
+  name?: string;
+  image?: string;
   group: boolean;
+  lastMessage: Message;
 };
 export type Message = {
-  body: string;
+  _id: string;
+  body: {
+    text: string;
+  };
   sendFrom: User;
 };

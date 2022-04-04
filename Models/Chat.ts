@@ -3,7 +3,7 @@ const Schema = mongoose.Schema;
 
 const chatSchema = new Schema(
   {
-    users: [
+    members: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "user",
@@ -12,6 +12,14 @@ const chatSchema = new Schema(
     name: String,
     image: String,
     group: Boolean,
+    lastMessage: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "message",
+    },
+    lastActivity: {
+      type: Date,
+      default: new Date(),
+    },
   },
   {
     timestamps: true,

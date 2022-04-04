@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { BiPlusCircle, BiSearchAlt2 } from "react-icons/bi";
-import { useAddContact } from "../lib/Chats";
-import axios from "axios";
 import { User } from "../Models/Types";
-import { gql, useLazyQuery, useQuery } from "@apollo/client";
+import { useLazyQuery, useMutation } from "@apollo/client";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
+import { ADD_CONTACT, SEARCH_USER } from "../graphql/queries";
+
 export default function AddContact() {
   const [search, setSearch] = useState("");
   const router = useRouter();
@@ -15,27 +15,28 @@ export default function AddContact() {
       router.push("/login");
     },
   });
-  // const [results, setResults] = useState<User[] | null | "notFound">();
-  const searchUserQuery = gql`
-    query searchForUser($search: String!) {
-      searchForUser(queryString: $search) {
-        name
-        email
-        image
-      }
-    }
-  `;
-  const [loadQuery, { loading, data: results }] = useLazyQuery(
-    searchUserQuery,
-    {
-      variables: { search },
-    }
-  );
+  const [
+    addContact,
+    { data: addContactData, error, loading: addContactLoading },
+  ] = useMutation(ADD_CONTACT);
+
+  const [loadQuery, { loading, data: results }] = useLazyQuery(SEARCH_USER, {
+    variables: { search },
+  });
+
   useEffect(() => {
     if (search && search.length > 4) {
       loadQuery();
     }
   }, [search]);
+
+  useEffect(() => {
+    if (!addContactData) return;
+    console.log(addContactData, "New contact added");
+    // redirect to `chat/${addContactData._id}`
+    // push to chats on left
+    setSearch("");
+  }, [addContactData]);
 
   return (
     <>
@@ -67,10 +68,17 @@ export default function AddContact() {
                       src={user?.image}
                       alt="Profile image"
                       className="h-[30px] rounded-full"
+                      referrerPolicy="no-referrer"
                     />
                     <div>{user?.name}</div>
                   </span>
-                  <BiPlusCircle className="icon text-2xl" onClick={() => {}} />
+                  <BiPlusCircle
+                    className="icon text-2xl"
+                    onClick={() => {
+                      // if (!addContactLoading)
+                      addContact({ variables: { addContactId: user._id } });
+                    }}
+                  />
                 </li>
               ))
             )

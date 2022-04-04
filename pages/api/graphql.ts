@@ -1,13 +1,18 @@
-import { ApolloServer } from "apollo-server-micro";
+import { ApolloServer, gql } from "apollo-server-micro";
 import { NextApiResponse, NextApiRequest, PageConfig } from "next";
-import { schema } from "../../graphql/schema";
 import { createContext } from "../../graphql/context";
+import Query from "../../graphql/resolvers/Query";
+import Mutation from "../../graphql/resolvers/Mutation";
+import { typeDefs } from "../../graphql/schema";
 
 const apolloServer = new ApolloServer({
   context: createContext,
-  schema,
+  typeDefs,
+  resolvers: {
+    Query,
+    Mutation
+  },
 });
-
 const startServer = apolloServer.start();
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {

@@ -14,11 +14,11 @@ export async function createContext({
   req: NextApiRequest;
   res: NextApiResponse;
 }): Promise<Context> {
-  const session = (await getSession({ req }))?.user as User;
-
+  const session = await getSession({ req });
+  const user = { ...session?.user, _id: session?.userId } as User;
   const db = await dbConnect();
   return {
-    user: session,
+    user,
     db,
   };
 }

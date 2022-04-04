@@ -3,15 +3,15 @@ const Schema = mongoose.Schema;
 
 const messageSchema = new Schema(
   {
-    body: String,
+    body: { text: String },
     sendFrom: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "user",
     },
     chat: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "chat",
-      },
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "chat",
+    },
   },
   {
     timestamps: true,

@@ -1,35 +1,37 @@
 import React, { useRef, useEffect, useState } from "react";
 import AppContainer from "../../components/AppContainer";
 import Message from "../../components/Message";
-import { PageProps } from "../_app";
 import { MdAddPhotoAlternate, MdSend } from "react-icons/md";
 import { AiOutlinePlusCircle } from "react-icons/ai";
-import { sendChatMessage, useGetChats, useGetMessages } from "../../lib/Chats";
 import { useRouter } from "next/router";
 import { onSnapshot, doc, collection } from "firebase/firestore";
-import { useSession } from "next-auth/react";
+import { getSession, useSession } from "next-auth/react";
+import { useMutation, useQuery } from "@apollo/client";
+import { GET_MESSAGES, SEND_MESSAGE } from "../../graphql/queries";
 
-function Chat({ auth }: PageProps) {
+function Chat() {
   const router = useRouter();
-  const { status } = useSession({
-    required: true,
-    onUnauthenticated() {
-      router.push("/login");
-    },
+  const { data: auth } = useSession();
+  const bottomOfChat = useRef<HTMLDivElement>(null);
+  const { chatId } = router.query;
+  const [sendMessage, { data: newMessage, error, loading: sendLoading }] =
+    useMutation(SEND_MESSAGE);
+  const { loading, data } = useQuery(GET_MESSAGES, {
+    variables: { chatId },
   });
 
-  const bottomOfChat = useRef<HTMLDivElement>(null);
-  const { id } = router.query;
   const scrollToBottom = () => {
     if (!bottomOfChat.current) return;
     bottomOfChat.current.scrollIntoView({ behavior: "smooth" });
   };
   const [messageInput, setMessageInput] = useState("");
-  // const [messages] = useGetMessages(String(id));
 
   const onSubmit = async (e: any) => {
     e.preventDefault();
-    await sendChatMessage(messageInput, String(id), auth.user?.uid ?? "");
+    const res = await sendMessage({
+      variables: { body: { text: messageInput }, chatId },
+    });
+
     setMessageInput("");
   };
   // useEffect(() => {
@@ -53,17 +55,18 @@ function Chat({ auth }: PageProps) {
         </div>
       </div>
       <div className="overflow-auto relative  h-[calc(100vh-175px)]">
-        {/* {messages.map((message) => (
-          <Message
-            text={message.body}
-            received={
-              auth.user?.uid != message.sendFrom?.uid
-                ? message.sendFrom
-                : undefined
-            }
-            key={message.id}
-          />
-        ))} */}
+        {data?.getMessages &&
+          data.getMessages.map((message) => (
+            <Message
+              text={message.body.text}
+              received={
+                auth?.userId != message.sendFrom?._id
+                  ? message.sendFrom
+                  : undefined
+              }
+              key={message._id}
+            />
+          ))}
 
         <div ref={bottomOfChat}></div>
       </div>
@@ -86,3 +89,17 @@ function Chat({ auth }: PageProps) {
   );
 }
 export default Chat;
+
+export async function getServerSideProps(context) {
+  const ss = await getSession(context);
+  if (!ss)
+    return {
+      redirect: {
+        permanent: false,
+        destination: "/login",
+      },
+    };
+  return {
+    props: {},
+  };
+}

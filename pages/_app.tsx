@@ -1,22 +1,15 @@
 import "../styles/globals.css";
 import type { AppProps } from "next/app";
 import Layout from "../components/Layout";
-import {
-  AuthContextInterface,
-  AuthContextProvider,
-  useAuth,
-} from "../context/AuthContext";
 import AppContainer from "../components/AppContainer";
 import { SessionProvider, useSession } from "next-auth/react";
 
 // https://github.com/mariesta/nextjs-auth-with-firebase/blob/main/pages/sign_up.jsx
 // https://github.com/LogicismX/fullstack-chatapp
 // https://github.com/Chensokheng/next-firebase-boilerplate/blob/main/src/hook/auth.js
-export interface PageProps {
-  auth: AuthContextInterface;
-}
 import { ApolloProvider } from "@apollo/client";
 import appoloClient from "../lib/apollo";
+import { useRouter } from "next/router";
 
 export default function MyApp({
   Component,
@@ -36,10 +29,9 @@ function Providers({ children }: any) {
 }
 
 function App({ Component, pageProps }: AppProps) {
-  const auths = useAuth();
   const { data: session, status } = useSession();
-  console.log(session?.user);
-
+  console.log(status);
+  const router = useRouter()
   if (status === "authenticated") {
     return (
       <ApolloProvider client={appoloClient}>
@@ -51,5 +43,5 @@ function App({ Component, pageProps }: AppProps) {
   } else if (status === "unauthenticated") {
     return <Component {...pageProps} />;
   }
-  return null;
+  return null
 }

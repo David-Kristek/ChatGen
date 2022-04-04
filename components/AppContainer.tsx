@@ -1,7 +1,6 @@
 import Logo from "./Logo";
 import Contact from "./Contact";
 import Menu from "./Menu";
-import { useAuth } from "../context/AuthContext";
 import ContactList from "./ContactList";
 import { useRouter } from "next/router";
 import { ref, set, push } from "firebase/database";
@@ -34,6 +33,8 @@ export default function AppContainer({ children }: Props) {
             src={auth?.user?.image ?? ""}
             alt="Profile image"
             className="rounded-full h-12"
+            referrerPolicy="no-referrer"
+
           />
           <span className="text-white text-xl">{auth?.user?.name}</span>
           <Menu

@@ -15,7 +15,12 @@ export default function LoginWith({ name }: Props) {
         signIn(name);
       }}
     >
-      <img src={`${name}.png`} alt="logo" className="h-[30px] w-[30px ]" />
+      <img
+        src={`${name}.png`}
+        alt="logo"
+        className="h-[30px] w-[30px ]"
+        referrerPolicy="no-referrer"
+      />
       <label className="text-lg text-black">
         Sign up with {name.charAt(0).toUpperCase() + name.slice(1)}
       </label>

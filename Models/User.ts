@@ -7,9 +7,13 @@ const userSchema = new Schema({
   image: String,
   emailVerfied: Boolean,
   key: String,
-  friends: {
+  friends: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: "user",
-  },
+  }],
+  chats: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "chat",
+  }]
 });
 export default mongoose.models.user || mongoose.model("user", userSchema);

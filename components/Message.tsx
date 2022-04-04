@@ -1,5 +1,5 @@
 import React from "react";
-import { User } from "../context/AuthContext";
+import { User } from "../Models/Types";
 
 interface Props {
   received?: User;
@@ -14,12 +14,13 @@ export default function Message({ received, text }: Props) {
       }`}
     >
       {received && (
-          <img
-            src={received.img}
-            alt="Profile image"
-            className="absolute left-[2%] bottom-0 h-8 rounded-full"
-          />
-        )}
+        <img
+          src={received.image}
+          alt="Profile image"
+          className="absolute left-[2%] bottom-0 h-8 rounded-full"
+          referrerPolicy="no-referrer"
+        />
+      )}
       <div
         className={`text-white rounded-lg py-2 px-4 max-w-[50%]  ${
           received
@@ -28,7 +29,6 @@ export default function Message({ received, text }: Props) {
         }`}
       >
         {text}
-
       </div>
     </div>
   );
