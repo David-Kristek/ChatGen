@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { BiPlusCircle, BiSearchAlt2 } from "react-icons/bi";
-import { User } from "../Models/Types";
-import { useLazyQuery, useMutation } from "@apollo/client";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { ADD_CONTACT, SEARCH_USER } from "../graphql/queries";
+import {
+  useAddContactMutation,
+  User,
+  useSearchForUserLazyQuery,
+} from "../graphql/generated/schema";
 
 export default function AddContact() {
   const [search, setSearch] = useState("");
@@ -18,9 +21,9 @@ export default function AddContact() {
   const [
     addContact,
     { data: addContactData, error, loading: addContactLoading },
-  ] = useMutation(ADD_CONTACT);
+  ] = useAddContactMutation();
 
-  const [loadQuery, { loading, data: results }] = useLazyQuery(SEARCH_USER, {
+  const [loadQuery, { loading, data: results }] = useSearchForUserLazyQuery({
     variables: { search },
   });
 
@@ -29,7 +32,6 @@ export default function AddContact() {
       loadQuery();
     }
   }, [search]);
-
   useEffect(() => {
     if (!addContactData) return;
     console.log(addContactData, "New contact added");
@@ -58,7 +60,7 @@ export default function AddContact() {
                 User not found 😥
               </li>
             ) : (
-              results.searchForUser.map((user: User) => (
+              results?.searchForUser?.map((user: User) => (
                 <li
                   className="flex justify-between px-5 py-2 text-lg hover:bg-darkgreen cursor-pointer"
                   title={"#" + user?.email}

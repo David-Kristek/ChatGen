@@ -8,7 +8,7 @@ import { SessionProvider, useSession } from "next-auth/react";
 // https://github.com/LogicismX/fullstack-chatapp
 // https://github.com/Chensokheng/next-firebase-boilerplate/blob/main/src/hook/auth.js
 import { ApolloProvider } from "@apollo/client";
-import appoloClient from "../lib/apollo";
+import appoloClient from "../lib/apolloClient";
 import { useRouter } from "next/router";
 
 export default function MyApp({
@@ -31,7 +31,7 @@ function Providers({ children }: any) {
 function App({ Component, pageProps }: AppProps) {
   const { data: session, status } = useSession();
   console.log(status);
-  const router = useRouter()
+  const router = useRouter();
   if (status === "authenticated") {
     return (
       <ApolloProvider client={appoloClient}>
@@ -43,5 +43,5 @@ function App({ Component, pageProps }: AppProps) {
   } else if (status === "unauthenticated") {
     return <Component {...pageProps} />;
   }
-  return null
+  return null;
 }

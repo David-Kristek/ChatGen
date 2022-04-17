@@ -6,15 +6,14 @@ export default {
   searchForUser: async (parent, { text }, { user }) => {
     const thisUser = await User.findOne({ _id: user._id });
     const users = await User.find({
-      $and: [
-        { $text: { $search: text } },
-        { email: { $ne: user?.email } },
-        { _id: { $nin: thisUser.friends ?? [] } },
-      ],
+      $text: { $search: text },
+      email: { $ne: user?.email },
+      _id: { $nin: thisUser?.friends ?? [] },
     }).limit(3);
     return users;
   },
   getChats: async (parent, args, { user }) => {
+    console.log(user);
     const chats = (
       await User.findOne({ _id: user._id }, { chats: 1 }).populate({
         path: "chats",
@@ -25,12 +24,17 @@ export default {
     return chats;
   },
   getMessages: async (parent, { id }, { user }) => {
-    const messages = await Message.find({
+    const chat = await Chat.findOne({
       chat: id,
       members: user._id,
-    }).populate("sendFrom").sort({createdAt: 1});
-    console.log(id, messages);
+    }).populate("members");
+    if (!chat) return {}; // not member of chat
+    const messages = await Message.find({
+      chat: id,
+    })
+      .populate("sendFrom")
+      .sort({ createdAt: 1 });
 
-    return messages;
+    return { messages, chat };
   },
 };

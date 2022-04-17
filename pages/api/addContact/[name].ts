@@ -1,9 +1,10 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from "next";
 import { getSession } from "next-auth/react";
+import { User as UserType } from "../../../graphql/generated/schema";
 import { withAuth } from "../../../lib/Auth";
 import dbConnect from "../../../lib/MongoDB";
-import { User as UserType } from "../../../Models/Types";
+// import { User as UserType } from "../../../Models/_Types";
 import User from "../../../Models/User";
 
 export type ResponseData<Type> = Type | { error: any };

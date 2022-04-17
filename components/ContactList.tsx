@@ -1,6 +1,6 @@
-import { useQuery } from "@apollo/client";
 import { useRouter } from "next/router";
 import React, { useEffect } from "react";
+import { useGetChatsQuery } from "../graphql/generated/schema";
 import { GET_CHATS } from "../graphql/queries";
 import Contact from "./Contact";
 
@@ -9,12 +9,12 @@ export default function ContactList() {
     data: chats,
     loading,
     error,
-  } = useQuery(GET_CHATS, { pollInterval: 1000 });
+  } = useGetChatsQuery( );
   const router = useRouter();
 
   useEffect(() => {
-    if (!loading && chats?.getChats?.length > 0) {
-    }
+    // if (!loading && (chats?.getChats?.length ?? 0) > 0) {
+    // }
   }, [chats]);
 
   return (

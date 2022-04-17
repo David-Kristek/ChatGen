@@ -1,0 +1,102 @@
+query searchForUser($search: String!) {
+  searchForUser(text: $search) {
+    name
+    email
+    image
+    _id
+  }
+}
+mutation AddContact($addContactId: ID!) {
+  addContact(id: $addContactId) {
+    _id
+    members {
+      name
+      image
+    }
+    group
+  }
+}
+query getChats {
+  getChats {
+    _id
+    group
+    name
+    image
+    members {
+      name
+      image
+      _id
+    }
+    lastMessage {
+      _id
+      sendFrom {
+        name
+        _id
+        image
+      }
+      body {
+        text
+      }
+    }
+  }
+}
+query GetMessages($chatId: ID!) {
+  getMessages(id: $chatId) {
+    messages {
+      _id
+      body {
+        text
+      }
+      sendFrom {
+        _id
+        image
+        name
+      }
+    }
+    chat {
+      _id
+      group 
+      name
+      image
+      members {
+        _id
+        name
+        image
+      }
+    }
+  }
+}
+mutation SendMessage($body: messageBodyInput, $chatId: ID) {
+  sendMessage(body: $body, chatId: $chatId) {
+    _id
+    body {
+      text
+    }
+    chat {
+      _id
+    }
+    sendFrom {
+      name
+      image 
+      _id
+    }
+  }
+}
+
+subscription NewMessage {
+  newMessage {
+    _id
+    sendFrom {
+      _id
+      name
+      image
+    }
+    body {
+      text
+    }
+    chat {
+      _id
+    }
+  }
+}
+# https://www.youtube.com/watch?v=PYDGjTufGsk&ab_channel=JamieBarton

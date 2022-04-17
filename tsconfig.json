@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
-    "target": "es5",
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "target": "es2018",
+    "lib": ["dom", "dom.iterable", "esnext", "es2018", "esnext.asynciterable"],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -15,6 +15,9 @@
     "jsx": "preserve",
     "incremental": true, 
     "noImplicitAny": false,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true
+    
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "apollo.config.ts", "pages/chats/[chatd].tsxI"],
   "exclude": ["node_modules"]

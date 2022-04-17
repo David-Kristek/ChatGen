@@ -1,7 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { getSession } from "next-auth/react";
 import dbConnect from "../lib/MongoDB";
-import { User } from "../Models/Types";
+import { User } from "./generated/schema";
 
 export type Context = {
   user: User | null;

@@ -1,44 +1,48 @@
-import { ApolloServer, gql } from "apollo-server-micro";
-import { NextApiResponse, NextApiRequest, PageConfig } from "next";
-import { createContext } from "../../graphql/context";
-import Query from "../../graphql/resolvers/Query";
+import { createServer, createPubSub, PubSub } from "@graphql-yoga/node";
+import { NextApiRequest, NextApiResponse } from "next";
+import { Session } from "next-auth";
+import { getSession } from "next-auth/react";
+import dbConnect from "../../lib/MongoDB";
+import "event-target-polyfill";
 import Mutation from "../../graphql/resolvers/Mutation";
+import Query from "../../graphql/resolvers/Query";
 import { typeDefs } from "../../graphql/schema";
+import Subscription from "../../graphql/resolvers/Subscription";
+import { Chat, Message, User } from "../../graphql/generated/schema";
 
-const apolloServer = new ApolloServer({
-  context: createContext,
-  typeDefs,
-  resolvers: {
-    Query,
-    Mutation
+const pubSub = createPubSub<{
+  "user:newMessage": [userId: string, message: Message];
+  "user:newChat": [userId: string, chat: Chat];
+}>();
+
+export type pubSub = typeof pubSub;
+
+const server = createServer<
+  {
+    req: NextApiRequest;
+    res: NextApiResponse;
+  },
+  {
+    user: User;
+    pubSub: any;
+  }           
+>({
+  context: async ({ req }) => {
+    const session = await getSession({ req });
+    await dbConnect();
+    return {
+      user: { ...session?.user, _id: session?.userId } as User,
+      pubSub,
+    };
+  },
+  schema: {
+    typeDefs,
+    resolvers: {
+      Query,
+      Mutation,
+      Subscription,
+    },
   },
 });
-const startServer = apolloServer.start();
 
-export default async (req: NextApiRequest, res: NextApiResponse) => {
-  res.setHeader("Access-Control-Allow-Credentials", "true");
-  res.setHeader(
-    "Access-Control-Allow-Origin",
-    "https://studio.apollographql.com"
-  );
-  res.setHeader(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept"
-  );
-  if (req.method === "OPTIONS") {
-    res.end();
-    return false;
-  }
-  await startServer;
-
-  await apolloServer.createHandler({
-    path: "/api/graphql",
-  })(req, res);
-};
-
-// // Apollo Server Micro takes care of body parsing
-export const config: PageConfig = {
-  api: {
-    bodyParser: false,
-  },
-};
+export default server;

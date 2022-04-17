@@ -1,5 +1,6 @@
 import React from "react";
-import { User } from "../Models/Types";
+import { User } from "../graphql/generated/schema";
+// import { User } from "../Models/Types";
 
 interface Props {
   received?: User;
