@@ -150,6 +150,11 @@ export type NewMessageSubscriptionVariables = Exact<{ [key: string]: never; }>;
 
 export type NewMessageSubscription = { __typename?: 'Subscription', newMessage?: { __typename?: 'message', _id: string, sendFrom: { __typename?: 'user', _id: string, name: string, image: string }, body: { __typename?: 'messageBody', text?: string | null }, chat?: { __typename?: 'chat', _id: string } | null } | null };
 
+export type NewChatSubscriptionVariables = Exact<{ [key: string]: never; }>;
+
+
+export type NewChatSubscription = { __typename?: 'Subscription', newChat?: { __typename?: 'chat', _id: string, group: boolean, name?: string | null, image?: string | null, members: Array<{ __typename?: 'user', name: string, image: string }>, lastMessage?: { __typename?: 'message', body: { __typename?: 'messageBody', text?: string | null } } | null } | null };
+
 
 export const SearchForUserDocument = gql`
     query searchForUser($search: String!) {
@@ -421,3 +426,44 @@ export function useNewMessageSubscription(baseOptions?: Apollo.SubscriptionHookO
       }
 export type NewMessageSubscriptionHookResult = ReturnType<typeof useNewMessageSubscription>;
 export type NewMessageSubscriptionResult = Apollo.SubscriptionResult<NewMessageSubscription>;
+export const NewChatDocument = gql`
+    subscription NewChat {
+  newChat {
+    _id
+    members {
+      name
+      image
+    }
+    group
+    name
+    image
+    lastMessage {
+      body {
+        text
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useNewChatSubscription__
+ *
+ * To run a query within a React component, call `useNewChatSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useNewChatSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useNewChatSubscription({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useNewChatSubscription(baseOptions?: Apollo.SubscriptionHookOptions<NewChatSubscription, NewChatSubscriptionVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useSubscription<NewChatSubscription, NewChatSubscriptionVariables>(NewChatDocument, options);
+      }
+export type NewChatSubscriptionHookResult = ReturnType<typeof useNewChatSubscription>;
+export type NewChatSubscriptionResult = Apollo.SubscriptionResult<NewChatSubscription>;

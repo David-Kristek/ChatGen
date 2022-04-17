@@ -23,6 +23,7 @@ import {
 } from "../../graphql/generated/schema";
 import { useQuery, useSubscription } from "@apollo/client";
 import apolloClient from "../../lib/apolloClient";
+import Image from "next/image";
 
 function Chat() {
   const router = useRouter();
@@ -44,10 +45,29 @@ function Chat() {
       },
     };
   }, []);
+  const updateChat = useCallback((newMessage) => {
+    apolloClient.cache.updateQuery({ query: GetChatsDocument }, (data) => {
+      let thisChat;
+      let chats = data.getChats.filter((chat, index) => {
+        if (chat._id === newMessage?.chat?._id) {
+          thisChat = chat;
+          return false;
+        }
+        return true;
+      });
+      thisChat = { ...thisChat, lastMessage: newMessage };
+      chats = [thisChat, ...chats];
+      return {
+        getChats: chats,
+      };
+    });
+  }, []);
+
   const contact = useMemo(() => {
     if (!data) return;
     // group ? null : members[0]._id === auth?.userId ? members[1] : members[0],
     const chat = data.getMessages?.chat;
+    console.log(chat, "chat");
     if (!chat) return;
     const { members, group, name, image } = chat;
     return group
@@ -69,12 +89,12 @@ function Chat() {
     const res = await sendMessage({
       variables: { body: { text: messageInput }, chatId: String(chatId) },
     });
-    console.log(res.data, "msg sent");
 
     apolloClient.cache.updateQuery(
       { query: GetMessagesDocument, variables: { chatId } },
       (data) => addNewMessage(data, res.data?.sendMessage)
     );
+    updateChat(res.data?.sendMessage);
   };
   useEffect(() => {
     subscribeToMore({
@@ -83,15 +103,7 @@ function Chat() {
         if (!subscriptionData.data) return prev;
         // @ts-ignore
         const newMessage = subscriptionData.data.newMessage;
-        apolloClient.cache.updateQuery({ query: GetChatsDocument }, (data) => {
-          return {
-            getChats: data.getChats.map((chat) =>
-              chat._id === newMessage.chat._id
-                ? { ...chat, lastMessage: newMessage }
-                : chat
-            ),
-          };
-        });
+        updateChat(newMessage);
         if (newMessage.chat._id === chatId)
           return addNewMessage(prev, newMessage);
         return prev;
@@ -104,13 +116,17 @@ function Chat() {
   return (
     <>
       <div className="flex-center justify-start pl-[6%] pt-5 pb-3">
-        <img
-          src={contact?.image ?? ""}
-          alt="Profile image"
-          className="h-[63px] w-[63px] rounded-full mr-3"
-          onClick={scrollToBottom}
-        />
-        <div className="text-2xl text-white">
+        {contact?.image && (
+          <Image
+            src={contact.image}
+            alt="Profile image"
+            className=" rounded-full"
+            height={63}
+            width={63}
+            onClick={scrollToBottom}
+          />
+        )}
+        <div className="text-2xl text-white  ml-3">
           <span>{contact?.name}</span>
           <span className="flex-center justify-end">
             <div className="h-3 w-3 mr-1 bg-green-500 rounded-full" />

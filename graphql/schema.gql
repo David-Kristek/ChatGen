@@ -55,7 +55,7 @@ query GetMessages($chatId: ID!) {
     }
     chat {
       _id
-      group 
+      group
       name
       image
       members {
@@ -77,7 +77,7 @@ mutation SendMessage($body: messageBodyInput, $chatId: ID) {
     }
     sendFrom {
       name
-      image 
+      image
       _id
     }
   }
@@ -99,4 +99,22 @@ subscription NewMessage {
     }
   }
 }
+subscription NewChat {
+  newChat {
+    _id
+    members {
+      name
+      image
+    }
+    group
+    name
+    image
+    lastMessage {
+      body {
+        text
+      }
+    }
+  }
+}
+
 # https://www.youtube.com/watch?v=PYDGjTufGsk&ab_channel=JamieBarton

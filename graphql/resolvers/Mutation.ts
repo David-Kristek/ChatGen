@@ -26,7 +26,10 @@ export default {
       { _id: user._id },
       { $push: { friends: id }, $addToSet: { chats: _id } }
     );
-    pubSub.publish("user:newChat", id, chat._id);
+    console.log("published to ", id);
+    
+    pubSub.publish("user:newChat", id, chat);
+    pubSub.publish("user:newChat", user._id, chat);
 
     return chat;
   },

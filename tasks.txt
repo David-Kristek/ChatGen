@@ -1,0 +1,4 @@
+server / static  side rendering
+testing 
+pagination 
+loading spinner when loading

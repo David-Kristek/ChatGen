@@ -13,7 +13,7 @@ export default {
     return users;
   },
   getChats: async (parent, args, { user }) => {
-    console.log(user);
+
     const chats = (
       await User.findOne({ _id: user._id }, { chats: 1 }).populate({
         path: "chats",
@@ -24,10 +24,12 @@ export default {
     return chats;
   },
   getMessages: async (parent, { id }, { user }) => {
+    
     const chat = await Chat.findOne({
-      chat: id,
+      _id: id,
       members: user._id,
     }).populate("members");
+    
     if (!chat) return {}; // not member of chat
     const messages = await Message.find({
       chat: id,
