@@ -27,8 +27,8 @@ const server = createServer<
     pubSub: any;
   }           
 >({
-  context: async ({ req }) => {
-    const session = await getSession({ req });
+  context: async (ctx) => {
+    const session = await getSession(ctx);    
     await dbConnect();
     return {
       user: { ...session?.user, _id: session?.userId } as User,

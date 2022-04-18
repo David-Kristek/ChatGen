@@ -19,6 +19,6 @@
     "experimentalDecorators": true
     
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "apollo.config.ts", "pages/chats/[chatd].tsxI"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "apollo.config.ts", "pages/chats/[chatd].tsxI", "cypress/support/commands.js"],
   "exclude": ["node_modules"]
 }

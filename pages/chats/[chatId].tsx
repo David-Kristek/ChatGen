@@ -21,11 +21,12 @@ import {
   User,
   useSendMessageMutation,
 } from "../../graphql/generated/schema";
-import { useQuery, useSubscription } from "@apollo/client";
-import apolloClient from "../../lib/apolloClient";
+import { useApolloClient, useQuery, useSubscription } from "@apollo/client";
+import { initializeApollo, useApollo } from "../../lib/apolloClient";
 import Image from "next/image";
 
 function Chat() {
+  const apolloClient = useApolloClient();
   const router = useRouter();
   const { data: auth } = useSession();
   const bottomOfChat = useRef<HTMLDivElement>(null);
@@ -48,6 +49,7 @@ function Chat() {
   const updateChat = useCallback((newMessage) => {
     apolloClient.cache.updateQuery({ query: GetChatsDocument }, (data) => {
       let thisChat;
+      if (!data) return null;
       let chats = data.getChats.filter((chat, index) => {
         if (chat._id === newMessage?.chat?._id) {
           thisChat = chat;
@@ -67,7 +69,7 @@ function Chat() {
     if (!data) return;
     // group ? null : members[0]._id === auth?.userId ? members[1] : members[0],
     const chat = data.getMessages?.chat;
-    console.log(chat, "chat");
+
     if (!chat) return;
     const { members, group, name, image } = chat;
     return group
@@ -169,9 +171,8 @@ function Chat() {
   );
 }
 export default Chat;
-
-export async function getServerSideProps(context) {
-  const ss = await getSession(context);
+export const getServerSideProps = async (ctx) => {
+  const ss = await getSession(ctx);
   if (!ss)
     return {
       redirect: {
@@ -179,7 +180,18 @@ export async function getServerSideProps(context) {
         destination: "/login",
       },
     };
+  const client = initializeApollo();
+  const Cookie = ctx.req.headers.cookie;
+
+  await client.query({
+    query: GetMessagesDocument,
+    variables: { chatId: ctx.params.chatId },
+    context: { headers: { Cookie } },
+  });
+
   return {
-    props: {},
+    props: {
+      initialApolloState: client.cache.extract(),
+    },
   };
-}
+};

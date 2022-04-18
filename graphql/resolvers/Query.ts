@@ -12,24 +12,22 @@ export default {
     }).limit(3);
     return users;
   },
-  getChats: async (parent, args, { user }) => {
-
+  getChats: async (parent, args, ctx) => {
     const chats = (
-      await User.findOne({ _id: user._id }, { chats: 1 }).populate({
+      await User.findOne({ _id: ctx.user._id }, { chats: 1 }).populate({
         path: "chats",
         populate: ["members", { path: "lastMessage", populate: "sendFrom" }],
         options: { sort: { lastActivity: -1 } },
       })
-    ).chats;
+    )?.chats;
     return chats;
   },
   getMessages: async (parent, { id }, { user }) => {
-    
     const chat = await Chat.findOne({
       _id: id,
       members: user._id,
     }).populate("members");
-    
+
     if (!chat) return {}; // not member of chat
     const messages = await Message.find({
       chat: id,
