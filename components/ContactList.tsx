@@ -7,6 +7,8 @@ import {
 } from "../graphql/generated/schema";
 import Contact from "./Contact";
 
+import ClipLoader from "react-spinners/ClipLoader";
+
 export default function ContactList() {
   const { data: chats, loading, error, subscribeToMore } = useGetChatsQuery();
   const router = useRouter();
@@ -32,11 +34,15 @@ export default function ContactList() {
 
   return (
     <div className="mt-10">
-      {chats &&
+      {loading ? (
+        <div >
+          <ClipLoader color={"lightgreen"} loading={loading} size={35} css={"display: block; margin: 0 auto"} />
+        </div>
+      ) : (
+        chats &&
         chats.getChats &&
-        chats.getChats.map((chat, index) => (
-          <Contact chat={chat} key={index} />
-        ))}
+        chats.getChats.map((chat, index) => <Contact chat={chat} key={index} />)
+      )}
     </div>
   );
 }
