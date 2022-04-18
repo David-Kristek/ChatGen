@@ -3,7 +3,9 @@ import Contact from "../components/Contact";
 import Menu from "../components/Menu";
 import AppContainer from "../components/AppContainer";
 import { useRouter } from "next/router";
-import { useSession } from "next-auth/react";
+import { getSession, useSession } from "next-auth/react";
+import dbConnect from "../lib/MongoDB";
+import User from "../Models/User";
 function Home() {
   const router = useRouter();
   // router.replace("/chats/NnKSXp2SRdjctFaLURfD");
@@ -18,3 +20,34 @@ function Home() {
 }
 
 export default Home;
+
+export const getServerSideProps = async (ctx) => {
+  const ss = await getSession(ctx);
+  if (!ss)
+    return {
+      redirect: {
+        permanent: false,
+        destination: "/login",
+      },
+    };
+  await dbConnect();
+  const redirect = (
+    await User.findOne({ _id: ss.userId }).populate({
+      path: "chats",
+      options: { sort: { lastActivity: -1 }, limit: 1 },
+    })
+  )?.chats[0]?._id;
+  if (redirect)
+    return {
+      redirect: {
+        permanent: false,
+        destination: `/chats/${redirect}`,
+      },
+    };
+  return {
+    redirect: {
+      permanent: false,
+      destination: `/add_chat`,
+    },
+  };
+};
