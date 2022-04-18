@@ -35,13 +35,20 @@ export default function ContactList() {
   return (
     <div className="mt-10">
       {loading ? (
-        <div >
-          <ClipLoader color={"lightgreen"} loading={loading} size={35} css={"display: block; margin: 0 auto"} />
+        <div>
+          <ClipLoader
+            color={"lightgreen"}
+            loading={loading}
+            size={35}
+            css={"display: block; margin: 0 auto"}
+          />
         </div>
       ) : (
         chats &&
         chats.getChats &&
-        chats.getChats.map((chat, index) => <Contact chat={chat} key={index} />)
+        chats.getChats.map((chat, index) => (
+          <Contact chat={chat} index={index} key={index} />
+        ))
       )}
     </div>
   );
