@@ -58,7 +58,7 @@ export default function Contact({ chat, index }: Props) {
       <LoadingBar color="#50B661" ref={ref} />
       <Link href={`/chats/${_id}`}>
         <div
-          className={`py-4 pr-5  flex  mx-5 items-center relative rounded-2xl text-white mb-3 group cursor-pointer hover:bg-blackgreen overflow-hidden  ${
+          className={`py-4 pr-5  flex  mx-5 items-center relative rounded-2xl text-white mb-3 group cursor-pointer hover:bg-blackgreen   ${
             router.query.chatId === chat._id
               ? "bg-blackop shadow-sm shadow-gray-400"
               : "hover:shadow-md"

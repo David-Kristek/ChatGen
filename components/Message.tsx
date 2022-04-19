@@ -10,7 +10,7 @@ interface Props {
 export default function Message({ received, text }: Props) {
   return (
     <div
-      className={`w-full px-[5%] flex relative mb-5 ${
+      className={`w-full px-[5%] flex relative mb-5 cursor-pointer ${
         received ? "justify-start" : "justify-end"
       }`}
     >
@@ -23,10 +23,10 @@ export default function Message({ received, text }: Props) {
         />
       )}
       <div
-        className={`text-white rounded-lg py-2 px-4 max-w-[50%]  ${
+        className={`text-white rounded-lg py-2 px-4 max-w-[50%] transition-all  ${
           received
-            ? "bg-bluegreen rounded-bl-none"
-            : "bg-lightgreen rounded-br-none"
+            ? "bg-bluegreen rounded-bl-none hover:bg-[#265e4d] "
+            : "bg-lightgreen rounded-br-none hover:bg-green-800"
         }`}
       >
         {text}

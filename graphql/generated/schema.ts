@@ -13,6 +13,7 @@ export type Scalars = {
   Boolean: boolean;
   Int: number;
   Float: number;
+  Date: any;
 };
 
 export type Mutation = {
@@ -78,6 +79,7 @@ export type Message = {
   _id: Scalars['String'];
   body: MessageBody;
   chat?: Maybe<Chat>;
+  createdAt?: Maybe<Scalars['Date']>;
   sendFrom: User;
 };
 
@@ -135,7 +137,7 @@ export type GetMessagesQueryVariables = Exact<{
 }>;
 
 
-export type GetMessagesQuery = { __typename?: 'Query', getMessages?: { __typename?: 'getMessagesOutput', messages?: Array<{ __typename?: 'message', _id: string, body: { __typename?: 'messageBody', text?: string | null }, sendFrom: { __typename?: 'user', _id: string, image: string, name: string } }> | null, chat?: { __typename?: 'chat', _id: string, group: boolean, name?: string | null, image?: string | null, members: Array<{ __typename?: 'user', _id: string, name: string, image: string }> } | null } | null };
+export type GetMessagesQuery = { __typename?: 'Query', getMessages?: { __typename?: 'getMessagesOutput', messages?: Array<{ __typename?: 'message', _id: string, createdAt?: any | null, body: { __typename?: 'messageBody', text?: string | null }, sendFrom: { __typename?: 'user', _id: string, image: string, name: string } }> | null, chat?: { __typename?: 'chat', _id: string, group: boolean, name?: string | null, image?: string | null, members: Array<{ __typename?: 'user', _id: string, name: string, image: string }> } | null } | null };
 
 export type SendMessageMutationVariables = Exact<{
   body?: InputMaybe<MessageBodyInput>;
@@ -298,6 +300,7 @@ export const GetMessagesDocument = gql`
         image
         name
       }
+      createdAt
     }
     chat {
       _id

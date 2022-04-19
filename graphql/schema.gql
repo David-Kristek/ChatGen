@@ -52,6 +52,7 @@ query GetMessages($chatId: ID!) {
         image
         name
       }
+      createdAt
     }
     chat {
       _id

@@ -13,17 +13,14 @@ import { getSession, useSession } from "next-auth/react";
 import {
   GetChatsDocument,
   GetMessagesDocument,
-  Message as MessageType,
   NewMessageDocument,
-  NewMessageSubscription,
   useGetMessagesQuery,
-  useNewMessageSubscription,
-  User,
   useSendMessageMutation,
 } from "../../graphql/generated/schema";
-import { useApolloClient, useQuery, useSubscription } from "@apollo/client";
-import { initializeApollo, useApollo } from "../../lib/apolloClient";
+import { useApolloClient } from "@apollo/client";
+import { initializeApollo } from "../../lib/apolloClient";
 import Image from "next/image";
+import Time from "../../components/Time";
 
 function Chat() {
   const apolloClient = useApolloClient();
@@ -138,16 +135,26 @@ function Chat() {
       </div>
       <div className="overflow-auto relative  h-[calc(100vh-175px)]">
         {data?.getMessages?.messages &&
-          data.getMessages.messages.map((message) => (
-            <Message
-              text={message?.body?.text ?? ""}
-              received={
-                auth?.userId != message.sendFrom._id
-                  ? message.sendFrom
-                  : undefined
-              }
-              key={message._id}
-            />
+          data.getMessages.messages.map((message, index) => (
+            <div key={index}>
+              <Time
+                time={message.createdAt}
+                prevTime={
+                  data?.getMessages?.messages &&
+                  data.getMessages.messages[index - 1]?.createdAt
+                }
+
+              />
+              <Message
+                text={message?.body?.text ?? ""}
+                received={
+                  auth?.userId != message.sendFrom._id
+                    ? message.sendFrom
+                    : undefined
+                }
+                key={message._id}
+              />
+            </div>
           ))}
 
         <div ref={bottomOfChat}></div>

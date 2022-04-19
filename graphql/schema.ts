@@ -2,6 +2,8 @@ import { gql } from "apollo-server-micro";
 import { Field, ObjectType } from "type-graphql";
 
 export const typeDefs = gql`
+  scalar Date 
+
   type Query {
     searchForUser(text: String!): [user!]
     getChats: [chat!]
@@ -48,6 +50,7 @@ export const typeDefs = gql`
     sendFrom: user!
     body: messageBody!
     chat: chat
+    createdAt: Date
   }
   type post {
     author: String
