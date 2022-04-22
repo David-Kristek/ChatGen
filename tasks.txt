@@ -2,10 +2,12 @@ server / static  side rendering      ✅
 loading spinner when loading         ✅
 index redirect                       ✅
 time showing between messages        ✅
-already read vs not read
-new chat permissions 
-group chat 
-blocking users 
-pagination 
-all page at least bit more responsive 
-testing 
+already read vs not read             ✅
+is someone typing   
+new chat permissions    
+group chat  
+blocking users  
+pagination  
+all page at least bit more responsive   
+testing     
+user status 

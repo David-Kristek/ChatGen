@@ -20,12 +20,24 @@ export type Mutation = {
   __typename?: 'Mutation';
   addContact?: Maybe<Chat>;
   broadcastRandomNumber?: Maybe<Scalars['Boolean']>;
+  lastActive?: Maybe<Scalars['Boolean']>;
+  messageRead?: Maybe<Scalars['Boolean']>;
   sendMessage?: Maybe<Message>;
 };
 
 
 export type MutationAddContactArgs = {
   id: Scalars['ID'];
+};
+
+
+export type MutationLastActiveArgs = {
+  chatId: Scalars['ID'];
+};
+
+
+export type MutationMessageReadArgs = {
+  messageId: Scalars['ID'];
 };
 
 
@@ -56,6 +68,12 @@ export type Subscription = {
   globalCounter?: Maybe<Message>;
   newChat?: Maybe<Chat>;
   newMessage?: Maybe<Message>;
+  nowActiveInChat?: Maybe<NowActiveInChatOutput>;
+};
+
+
+export type SubscriptionNowActiveInChatArgs = {
+  chatId: Scalars['ID'];
 };
 
 export type Chat = {
@@ -64,14 +82,20 @@ export type Chat = {
   group: Scalars['Boolean'];
   image?: Maybe<Scalars['String']>;
   lastMessage?: Maybe<Message>;
-  members: Array<User>;
+  members: Array<Member>;
   name?: Maybe<Scalars['String']>;
 };
 
 export type GetMessagesOutput = {
   __typename?: 'getMessagesOutput';
-  chat?: Maybe<Chat>;
+  chat: Chat;
   messages?: Maybe<Array<Message>>;
+};
+
+export type Member = {
+  __typename?: 'member';
+  lastActive: Scalars['Date'];
+  member: User;
 };
 
 export type Message = {
@@ -90,6 +114,12 @@ export type MessageBody = {
 
 export type MessageBodyInput = {
   text: Scalars['String'];
+};
+
+export type NowActiveInChatOutput = {
+  __typename?: 'nowActiveInChatOutput';
+  active?: Maybe<Scalars['Date']>;
+  userId?: Maybe<Scalars['String']>;
 };
 
 export type Post = {
@@ -125,19 +155,19 @@ export type AddContactMutationVariables = Exact<{
 }>;
 
 
-export type AddContactMutation = { __typename?: 'Mutation', addContact?: { __typename?: 'chat', _id: string, group: boolean, members: Array<{ __typename?: 'user', name: string, image: string }> } | null };
+export type AddContactMutation = { __typename?: 'Mutation', addContact?: { __typename?: 'chat', _id: string, group: boolean, members: Array<{ __typename?: 'member', member: { __typename?: 'user', name: string, image: string } }> } | null };
 
 export type GetChatsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetChatsQuery = { __typename?: 'Query', getChats?: Array<{ __typename?: 'chat', _id: string, group: boolean, name?: string | null, image?: string | null, members: Array<{ __typename?: 'user', name: string, image: string, _id: string }>, lastMessage?: { __typename?: 'message', _id: string, sendFrom: { __typename?: 'user', name: string, _id: string, image: string }, body: { __typename?: 'messageBody', text?: string | null } } | null }> | null };
+export type GetChatsQuery = { __typename?: 'Query', getChats?: Array<{ __typename?: 'chat', _id: string, group: boolean, name?: string | null, image?: string | null, members: Array<{ __typename?: 'member', lastActive: any, member: { __typename?: 'user', name: string, image: string, _id: string } }>, lastMessage?: { __typename?: 'message', _id: string, sendFrom: { __typename?: 'user', name: string, _id: string, image: string }, body: { __typename?: 'messageBody', text?: string | null } } | null }> | null };
 
 export type GetMessagesQueryVariables = Exact<{
   chatId: Scalars['ID'];
 }>;
 
 
-export type GetMessagesQuery = { __typename?: 'Query', getMessages?: { __typename?: 'getMessagesOutput', messages?: Array<{ __typename?: 'message', _id: string, createdAt?: any | null, body: { __typename?: 'messageBody', text?: string | null }, sendFrom: { __typename?: 'user', _id: string, image: string, name: string } }> | null, chat?: { __typename?: 'chat', _id: string, group: boolean, name?: string | null, image?: string | null, members: Array<{ __typename?: 'user', _id: string, name: string, image: string }> } | null } | null };
+export type GetMessagesQuery = { __typename?: 'Query', getMessages?: { __typename?: 'getMessagesOutput', messages?: Array<{ __typename?: 'message', _id: string, createdAt?: any | null, body: { __typename?: 'messageBody', text?: string | null }, sendFrom: { __typename?: 'user', _id: string, image: string, name: string } }> | null, chat: { __typename?: 'chat', _id: string, group: boolean, name?: string | null, image?: string | null, members: Array<{ __typename?: 'member', lastActive: any, member: { __typename?: 'user', _id: string, name: string, image: string } }> } } | null };
 
 export type SendMessageMutationVariables = Exact<{
   body?: InputMaybe<MessageBodyInput>;
@@ -147,6 +177,13 @@ export type SendMessageMutationVariables = Exact<{
 
 export type SendMessageMutation = { __typename?: 'Mutation', sendMessage?: { __typename?: 'message', _id: string, body: { __typename?: 'messageBody', text?: string | null }, chat?: { __typename?: 'chat', _id: string } | null, sendFrom: { __typename?: 'user', name: string, image: string, _id: string } } | null };
 
+export type LastActiveMutationVariables = Exact<{
+  chatId: Scalars['ID'];
+}>;
+
+
+export type LastActiveMutation = { __typename?: 'Mutation', lastActive?: boolean | null };
+
 export type NewMessageSubscriptionVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -155,7 +192,14 @@ export type NewMessageSubscription = { __typename?: 'Subscription', newMessage?:
 export type NewChatSubscriptionVariables = Exact<{ [key: string]: never; }>;
 
 
-export type NewChatSubscription = { __typename?: 'Subscription', newChat?: { __typename?: 'chat', _id: string, group: boolean, name?: string | null, image?: string | null, members: Array<{ __typename?: 'user', name: string, image: string }>, lastMessage?: { __typename?: 'message', body: { __typename?: 'messageBody', text?: string | null } } | null } | null };
+export type NewChatSubscription = { __typename?: 'Subscription', newChat?: { __typename?: 'chat', _id: string, group: boolean, name?: string | null, image?: string | null, members: Array<{ __typename?: 'member', lastActive: any, member: { __typename?: 'user', name: string, image: string } }>, lastMessage?: { __typename?: 'message', body: { __typename?: 'messageBody', text?: string | null } } | null } | null };
+
+export type MemberActiveInChatSubscriptionVariables = Exact<{
+  chatId: Scalars['ID'];
+}>;
+
+
+export type MemberActiveInChatSubscription = { __typename?: 'Subscription', nowActiveInChat?: { __typename?: 'nowActiveInChatOutput', userId?: string | null, active?: any | null } | null };
 
 
 export const SearchForUserDocument = gql`
@@ -201,8 +245,10 @@ export const AddContactDocument = gql`
   addContact(id: $addContactId) {
     _id
     members {
-      name
-      image
+      member {
+        name
+        image
+      }
     }
     group
   }
@@ -242,9 +288,12 @@ export const GetChatsDocument = gql`
     name
     image
     members {
-      name
-      image
-      _id
+      member {
+        name
+        image
+        _id
+      }
+      lastActive
     }
     lastMessage {
       _id
@@ -308,9 +357,12 @@ export const GetMessagesDocument = gql`
       name
       image
       members {
-        _id
-        name
-        image
+        member {
+          _id
+          name
+          image
+        }
+        lastActive
       }
     }
   }
@@ -389,6 +441,37 @@ export function useSendMessageMutation(baseOptions?: Apollo.MutationHookOptions<
 export type SendMessageMutationHookResult = ReturnType<typeof useSendMessageMutation>;
 export type SendMessageMutationResult = Apollo.MutationResult<SendMessageMutation>;
 export type SendMessageMutationOptions = Apollo.BaseMutationOptions<SendMessageMutation, SendMessageMutationVariables>;
+export const LastActiveDocument = gql`
+    mutation LastActive($chatId: ID!) {
+  lastActive(chatId: $chatId)
+}
+    `;
+export type LastActiveMutationFn = Apollo.MutationFunction<LastActiveMutation, LastActiveMutationVariables>;
+
+/**
+ * __useLastActiveMutation__
+ *
+ * To run a mutation, you first call `useLastActiveMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useLastActiveMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [lastActiveMutation, { data, loading, error }] = useLastActiveMutation({
+ *   variables: {
+ *      chatId: // value for 'chatId'
+ *   },
+ * });
+ */
+export function useLastActiveMutation(baseOptions?: Apollo.MutationHookOptions<LastActiveMutation, LastActiveMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<LastActiveMutation, LastActiveMutationVariables>(LastActiveDocument, options);
+      }
+export type LastActiveMutationHookResult = ReturnType<typeof useLastActiveMutation>;
+export type LastActiveMutationResult = Apollo.MutationResult<LastActiveMutation>;
+export type LastActiveMutationOptions = Apollo.BaseMutationOptions<LastActiveMutation, LastActiveMutationVariables>;
 export const NewMessageDocument = gql`
     subscription NewMessage {
   newMessage {
@@ -434,8 +517,11 @@ export const NewChatDocument = gql`
   newChat {
     _id
     members {
-      name
-      image
+      member {
+        name
+        image
+      }
+      lastActive
     }
     group
     name
@@ -470,3 +556,34 @@ export function useNewChatSubscription(baseOptions?: Apollo.SubscriptionHookOpti
       }
 export type NewChatSubscriptionHookResult = ReturnType<typeof useNewChatSubscription>;
 export type NewChatSubscriptionResult = Apollo.SubscriptionResult<NewChatSubscription>;
+export const MemberActiveInChatDocument = gql`
+    subscription MemberActiveInChat($chatId: ID!) {
+  nowActiveInChat(chatId: $chatId) {
+    userId
+    active
+  }
+}
+    `;
+
+/**
+ * __useMemberActiveInChatSubscription__
+ *
+ * To run a query within a React component, call `useMemberActiveInChatSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useMemberActiveInChatSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useMemberActiveInChatSubscription({
+ *   variables: {
+ *      chatId: // value for 'chatId'
+ *   },
+ * });
+ */
+export function useMemberActiveInChatSubscription(baseOptions: Apollo.SubscriptionHookOptions<MemberActiveInChatSubscription, MemberActiveInChatSubscriptionVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useSubscription<MemberActiveInChatSubscription, MemberActiveInChatSubscriptionVariables>(MemberActiveInChatDocument, options);
+      }
+export type MemberActiveInChatSubscriptionHookResult = ReturnType<typeof useMemberActiveInChatSubscription>;
+export type MemberActiveInChatSubscriptionResult = Apollo.SubscriptionResult<MemberActiveInChatSubscription>;

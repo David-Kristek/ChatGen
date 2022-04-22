@@ -13,22 +13,26 @@ import { Chat, Message, User } from "../../graphql/generated/schema";
 const pubSub = createPubSub<{
   "user:newMessage": [userId: string, message: Message];
   "user:newChat": [userId: string, chat: Chat];
+  "chat:memberActive": [
+    chatId: string,
+    member: { userId: string; active: Date }
+  ];
 }>();
 
 export type pubSub = typeof pubSub;
-
+export type context = {
+  user: User;
+  pubSub: any;
+};
 const server = createServer<
   {
     req: NextApiRequest;
     res: NextApiResponse;
   },
-  {
-    user: User;
-    pubSub: any;
-  }           
+  context
 >({
   context: async (ctx) => {
-    const session = await getSession(ctx);    
+    const session = await getSession(ctx);
     await dbConnect();
     return {
       user: { ...session?.user, _id: session?.userId } as User,

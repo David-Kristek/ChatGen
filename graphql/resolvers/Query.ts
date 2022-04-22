@@ -1,6 +1,8 @@
 import Chat from "../../Models/Chat";
 import Message from "../../Models/Message";
 import User from "../../Models/User";
+import { context, pubSub } from "../../pages/api/graphql";
+import {   isUserInChat, setLastActiveInChat } from "./resolveHelper";
 
 export default {
   searchForUser: async (parent, { text }, { user }) => {
@@ -16,18 +18,24 @@ export default {
     const chats = (
       await User.findOne({ _id: ctx.user._id }, { chats: 1 }).populate({
         path: "chats",
-        populate: ["members", { path: "lastMessage", populate: "sendFrom" }],
+        populate: [
+          "members.member",
+          { path: "lastMessage", populate: "sendFrom" },
+        ],
         options: { sort: { lastActivity: -1 } },
       })
     )?.chats;
     return chats;
   },
-  getMessages: async (parent, { id }, { user }) => {
+  getMessages: async (parent, { id }, { user, pubSub } : context) => {
+    console.log("getting messages----");
+    
     const chat = await Chat.findOne({
       _id: id,
-      members: user._id,
-    }).populate("members");
-
+      ...isUserInChat(user),
+    }).populate("members.member");
+    const s = await setLastActiveInChat(id, user._id, pubSub);
+    
     if (!chat) return {}; // not member of chat
     const messages = await Message.find({
       chat: id,

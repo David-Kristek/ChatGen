@@ -6,6 +6,7 @@ import { useRouter } from "next/router";
 import { getSession, useSession } from "next-auth/react";
 import dbConnect from "../lib/MongoDB";
 import User from "../Models/User";
+import Chat from "../Models/Chat";
 function Home() {
   const router = useRouter();
   // router.replace("/chats/NnKSXp2SRdjctFaLURfD");
@@ -34,6 +35,7 @@ export const getServerSideProps = async (ctx) => {
   const redirect = (
     await User.findOne({ _id: ss.userId }).populate({
       path: "chats",
+      model: Chat, 
       options: { sort: { lastActivity: -1 }, limit: 1 },
     })
   )?.chats[0]?._id;

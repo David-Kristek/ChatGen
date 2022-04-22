@@ -1,5 +1,6 @@
 import React, { useMemo } from "react";
 import format from "date-format";
+import { formatDate } from "../lib/chatHelper";
 
 interface Props {
   time: string;
@@ -8,30 +9,16 @@ interface Props {
 
 export default function Time({ time, prevTime }: Props) {
   // format("hh:mm", new Date(message.createdAt)
-  const days = [
-    "Monday",
-    "Tuesday ",
-    "Wednesday",
-    "Thursday",
-    "Friday",
-    "Saturday",
-    "Sunday",
-  ];
+
   const showTime: string | undefined = useMemo(() => {
     const dTime = new Date(time);
     const dPrevTime = prevTime ? new Date(prevTime) : null;
-    console.log(dPrevTime && dTime.getTime() - dPrevTime.getTime(), "minus");
 
     if (
       !dPrevTime ||
       dTime.getTime() - (dPrevTime ? dPrevTime.getTime() : 0) > 360000
     ) {
-      return dTime.getDate() === new Date().getDate()
-        ? format("hh:mm", dTime )
-        : dTime.getTime() - (dPrevTime?.getTime() ?? new Date().getTime()) >
-          604800000
-        ? format("hh:mm dd.MM.", dTime)
-        : days[dTime.getDay()] + format(` hh:mm`, dTime);
+      return formatDate(dTime, dPrevTime ?? undefined);
     }
     return;
   }, [time]);

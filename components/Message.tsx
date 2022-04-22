@@ -8,6 +8,7 @@ interface Props {
 }
 
 export default function Message({ received, text }: Props) {
+  // u last precteno pred minutami 
   return (
     <div
       className={`w-full px-[5%] flex relative mb-5 cursor-pointer ${

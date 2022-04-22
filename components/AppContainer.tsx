@@ -16,8 +16,8 @@ export default function AppContainer({ children }: Props) {
     router.push("/add_chat");
   };
   return (
-    <div className="grid grid-cols-5">
-      <div className="h-[100vh] bg-darkgreen pt-5 relative">
+    <div className="grid grid-cols-5 z-0">
+      <div className="h-[100vh] bg-darkgreen pt-5 relative z-0">
         <Logo />
         <ContactList />
         <div

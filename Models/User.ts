@@ -7,13 +7,22 @@ const userSchema = new Schema({
   image: String,
   emailVerfied: Boolean,
   key: String,
-  friends: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "user",
-  }],
-  chats: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "chat",
-  }]
+  friends: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "user",
+    },
+  ],
+  chats: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "chat",
+    },
+  ],
+  status: {
+    type: String,
+    enum: ["active", "offline", "unknown"],
+    default: "offline"
+  },
 });
 export default mongoose.models.user || mongoose.model("user", userSchema);

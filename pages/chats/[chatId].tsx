@@ -13,72 +13,52 @@ import { getSession, useSession } from "next-auth/react";
 import {
   GetChatsDocument,
   GetMessagesDocument,
+  MemberActiveInChatDocument,
   NewMessageDocument,
   useGetMessagesQuery,
+  useLastActiveMutation,
   useSendMessageMutation,
 } from "../../graphql/generated/schema";
 import { useApolloClient } from "@apollo/client";
 import { initializeApollo } from "../../lib/apolloClient";
 import Image from "next/image";
 import Time from "../../components/Time";
+import {
+  addNewMessage,
+  contactSelecter,
+  updateChat,
+} from "../../lib/chatHelper";
+import ReadBy from "../../components/ReadBy";
 
 function Chat() {
   const apolloClient = useApolloClient();
   const router = useRouter();
   const { data: auth } = useSession();
   const bottomOfChat = useRef<HTMLDivElement>(null);
+
   const { chatId } = router.query;
   const [sendMessage, { data: newMessage, error, loading: sendLoading }] =
     useSendMessageMutation();
   const { loading, data, subscribeToMore } = useGetMessagesQuery({
     variables: { chatId: String(chatId) },
+    fetchPolicy: "cache-first", // Used for first execution
+    // nextFetchPolicy: "cache-only",
   });
-  const addNewMessage = useCallback((prev, newMessage) => {
-    return {
-      getMessages: {
-        ...prev.getMessages,
-        messages: prev.getMessages.messages
-          ? [...prev.getMessages.messages, newMessage]
-          : [newMessage],
-      },
-    };
-  }, []);
-  const updateChat = useCallback((newMessage) => {
-    apolloClient.cache.updateQuery({ query: GetChatsDocument }, (data) => {
-      let thisChat;
-      if (!data) return null;
-      let chats = data.getChats.filter((chat, index) => {
-        if (chat._id === newMessage?.chat?._id) {
-          thisChat = chat;
-          return false;
-        }
-        return true;
-      });
-      thisChat = { ...thisChat, lastMessage: newMessage };
-      chats = [thisChat, ...chats];
-      return {
-        getChats: chats,
-      };
-    });
-  }, []);
+  const [lastActive, { data: sent }] = useLastActiveMutation({
+    variables: { chatId: String(chatId) },
+  });
 
   const contact = useMemo(() => {
     if (!data) return;
-    // group ? null : members[0]._id === auth?.userId ? members[1] : members[0],
     const chat = data.getMessages?.chat;
-
     if (!chat) return;
-    const { members, group, name, image } = chat;
-    return group
-      ? { name, image }
-      : members[0]._id === auth?.userId
-      ? members[1]
-      : members[0];
+    return contactSelecter(chat, String(auth?.userId));
   }, [data]);
   const scrollToBottom = () => {
     if (!bottomOfChat.current) return;
     bottomOfChat.current.scrollIntoView({ behavior: "smooth" });
   };
+  const [readBy, setreadBy] = useState<any>(data?.getMessages?.chat.members);
   const [messageInput, setMessageInput] = useState("");
   const onSubmit = async (e: any) => {
     e.preventDefault();
@@ -88,12 +68,17 @@ function Chat() {
     const res = await sendMessage({
       variables: { body: { text: messageInput }, chatId: String(chatId) },
     });
-
+    await lastActive();
     apolloClient.cache.updateQuery(
-      { query: GetMessagesDocument, variables: { chatId } },
+      {
+        query: GetMessagesDocument,
+        variables: { chatId },
+      },
       (data) => addNewMessage(data, res.data?.sendMessage)
     );
-    updateChat(res.data?.sendMessage);
+  };
+  const setLastActive = () => {
+    lastActive().then((res) => console.log("res", res));
   };
   useEffect(() => {
     subscribeToMore({
@@ -102,10 +87,35 @@ function Chat() {
         if (!subscriptionData.data) return prev;
         // @ts-ignore
         const newMessage = subscriptionData.data.newMessage;
-        updateChat(newMessage);
-        if (newMessage.chat._id === chatId)
+        updateChat(newMessage, apolloClient);
+
+        if (newMessage.chat._id === chatId) {
+          setLastActive();
           return addNewMessage(prev, newMessage);
+        }
         return prev;
+      },
+    });
+    subscribeToMore({
+      document: MemberActiveInChatDocument,
+      variables: { chatId: String(chatId) },
+      updateQuery: (prev, { subscriptionData }) => {
+        if (!subscriptionData) {
+          return prev;
+        }
+        let newData = JSON.parse(JSON.stringify(prev));
+        // @ts-ignore
+        const newMemberActive = subscriptionData.data.nowActiveInChat;
+
+        newData.getMessages.chat.members = prev.getMessages?.chat?.members.map(
+          (member) => {
+            return member.member._id === newMemberActive.userId
+              ? { ...member, lastActive: newMemberActive.active }
+              : member;
+          }
+        );
+        setreadBy(newData.getMessages.chat.members);
+        return newData;
       },
     });
   }, []);
@@ -143,7 +153,6 @@ function Chat() {
                   data?.getMessages?.messages &&
                   data.getMessages.messages[index - 1]?.createdAt
                 }
-
               />
               <Message
                 text={message?.body?.text ?? ""}
@@ -156,7 +165,14 @@ function Chat() {
               />
             </div>
           ))}
-
+        {readBy && data?.getMessages?.messages && (
+          <ReadBy
+            members={readBy}
+            lastMessage={
+              data?.getMessages?.messages[data.getMessages.messages?.length - 1]
+            }
+          />
+        )}
         <div ref={bottomOfChat}></div>
       </div>
       <form className="w-full h-16 relative" onSubmit={onSubmit}>

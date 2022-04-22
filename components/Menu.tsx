@@ -18,7 +18,6 @@ export default function Menu({ size, className, items }: Props) {
     setOpended(true);
   };
   const close = () => {
-    console.log(onMenu);
 
     setOpended(false || onMenu);
   };
@@ -50,7 +49,6 @@ export default function Menu({ size, className, items }: Props) {
                   setOnMenu(true);
                 }}
                 onMouseLeave={() => {
-                  console.log("leave");
                   setOnMenu(false);
                 }}
                 key={index}

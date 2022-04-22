@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { BiPlusCircle, BiSearchAlt2 } from "react-icons/bi";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
-import { ADD_CONTACT, SEARCH_USER } from "../graphql/queries";
 import {
   useAddContactMutation,
   User,
@@ -43,7 +42,7 @@ export default function AddContact() {
   return (
     <>
       <h1 className="heading">Najděte nové kontakty</h1>
-      <div className="flex items-center pt-4 gap-x-2 relative">
+      <div className="flex items-center pt-4 gap-x-2 relative z-0">
         <input
           type="text"
           className="input  w-1/4"

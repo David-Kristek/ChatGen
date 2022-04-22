@@ -5,8 +5,16 @@ const chatSchema = new Schema(
   {
     members: [
       {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "user",
+        // _id: false,
+        member: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "user",
+          unique: true, 
+        },
+        lastActive: {
+          type: Date,
+          default: new Date(),
+        },
       },
     ],
     name: String,

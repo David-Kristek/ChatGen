@@ -12,6 +12,7 @@ import truncate from "truncate";
 import { motion } from "framer-motion";
 import LoadingBar, { LoadingBarRef } from "react-top-loading-bar";
 import { useApolloClient } from "@apollo/client";
+import { contactSelecter } from "../lib/chatHelper";
 
 interface Props {
   chat: Chat;
@@ -24,15 +25,9 @@ export default function Contact({ chat, index }: Props) {
   const [contactLoading, setcontactLoading] = useState(false);
   const ref = useRef<LoadingBarRef>(null);
   const apolloClient = useApolloClient();
-  const contact = useMemo(
-    () =>
-      group
-        ? { name, image }
-        : members[0]._id === auth?.userId
-        ? members[1]
-        : members[0],
-    [chat]
-  );
+  const contact = useMemo(() => {
+    return contactSelecter(chat, String(auth?.userId));
+  }, [chat]);
   const router = useRouter();
   const menuItems = [
     { title: "Odstranit konverzaci" },
@@ -41,7 +36,6 @@ export default function Contact({ chat, index }: Props) {
   const setTopLoading = async () => {
     const ulrChatId = router.query.chatId;
     if (ulrChatId === _id) return;
-    console.log(apolloClient, "cache");
 
     const isChatInCache = await apolloClient.readQuery({
       query: GetMessagesDocument,
