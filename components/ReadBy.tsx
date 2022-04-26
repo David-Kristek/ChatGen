@@ -11,8 +11,6 @@ interface Props {
 export default function ReadBy({ lastMessage, members }: Props) {
   const { data: auth } = useSession();
   const [hover, setHover] = useState(false);
-  console.log(new  Date(lastMessage.createdAt), lastMessage?.body?.text);
-  console.log(new Date (members[0].lastActive), members[0].member.name);
   
   const timeDifference = useCallback(
     (date: Date) => {
@@ -31,6 +29,7 @@ export default function ReadBy({ lastMessage, members }: Props) {
     },
     [hover]
   );
+  if(!lastMessage) return <></>
   return (
     <div
       className={`my-4 cursor-pointer flex px-[5%] z-20 relative ${

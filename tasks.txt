@@ -3,8 +3,8 @@ loading spinner when loading         ✅
 index redirect                       ✅
 time showing between messages        ✅
 already read vs not read             ✅
-is someone typing   
-new chat permissions    
+is someone typing   // on key up 5 seconds someone is typing, onMessage sent from that user  cancel his  typing
+new chat permissions    messages {body: {msg: first}} povolit psani vs odstranit chat 
 group chat  
 blocking users  
 pagination  

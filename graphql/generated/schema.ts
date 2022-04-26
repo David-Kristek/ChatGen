@@ -23,6 +23,7 @@ export type Mutation = {
   lastActive?: Maybe<Scalars['Boolean']>;
   messageRead?: Maybe<Scalars['Boolean']>;
   sendMessage?: Maybe<Message>;
+  userTyping?: Maybe<Scalars['Boolean']>;
 };
 
 
@@ -46,6 +47,11 @@ export type MutationSendMessageArgs = {
   chatId?: InputMaybe<Scalars['ID']>;
 };
 
+
+export type MutationUserTypingArgs = {
+  chatId: Scalars['ID'];
+};
+
 export type Query = {
   __typename?: 'Query';
   getChats?: Maybe<Array<Chat>>;
@@ -66,9 +72,15 @@ export type QuerySearchForUserArgs = {
 export type Subscription = {
   __typename?: 'Subscription';
   globalCounter?: Maybe<Message>;
+  isUserTyping?: Maybe<User>;
   newChat?: Maybe<Chat>;
   newMessage?: Maybe<Message>;
   nowActiveInChat?: Maybe<NowActiveInChatOutput>;
+};
+
+
+export type SubscriptionIsUserTypingArgs = {
+  chatId: Scalars['ID'];
 };
 
 
@@ -184,6 +196,13 @@ export type LastActiveMutationVariables = Exact<{
 
 export type LastActiveMutation = { __typename?: 'Mutation', lastActive?: boolean | null };
 
+export type UserTypingMutationVariables = Exact<{
+  chatId: Scalars['ID'];
+}>;
+
+
+export type UserTypingMutation = { __typename?: 'Mutation', userTyping?: boolean | null };
+
 export type NewMessageSubscriptionVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -200,6 +219,13 @@ export type MemberActiveInChatSubscriptionVariables = Exact<{
 
 
 export type MemberActiveInChatSubscription = { __typename?: 'Subscription', nowActiveInChat?: { __typename?: 'nowActiveInChatOutput', userId?: string | null, active?: any | null } | null };
+
+export type IsUserTypingSubscriptionVariables = Exact<{
+  chatId: Scalars['ID'];
+}>;
+
+
+export type IsUserTypingSubscription = { __typename?: 'Subscription', isUserTyping?: { __typename?: 'user', _id: string, name: string, image: string } | null };
 
 
 export const SearchForUserDocument = gql`
@@ -472,6 +498,37 @@ export function useLastActiveMutation(baseOptions?: Apollo.MutationHookOptions<L
 export type LastActiveMutationHookResult = ReturnType<typeof useLastActiveMutation>;
 export type LastActiveMutationResult = Apollo.MutationResult<LastActiveMutation>;
 export type LastActiveMutationOptions = Apollo.BaseMutationOptions<LastActiveMutation, LastActiveMutationVariables>;
+export const UserTypingDocument = gql`
+    mutation UserTyping($chatId: ID!) {
+  userTyping(chatId: $chatId)
+}
+    `;
+export type UserTypingMutationFn = Apollo.MutationFunction<UserTypingMutation, UserTypingMutationVariables>;
+
+/**
+ * __useUserTypingMutation__
+ *
+ * To run a mutation, you first call `useUserTypingMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUserTypingMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [userTypingMutation, { data, loading, error }] = useUserTypingMutation({
+ *   variables: {
+ *      chatId: // value for 'chatId'
+ *   },
+ * });
+ */
+export function useUserTypingMutation(baseOptions?: Apollo.MutationHookOptions<UserTypingMutation, UserTypingMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UserTypingMutation, UserTypingMutationVariables>(UserTypingDocument, options);
+      }
+export type UserTypingMutationHookResult = ReturnType<typeof useUserTypingMutation>;
+export type UserTypingMutationResult = Apollo.MutationResult<UserTypingMutation>;
+export type UserTypingMutationOptions = Apollo.BaseMutationOptions<UserTypingMutation, UserTypingMutationVariables>;
 export const NewMessageDocument = gql`
     subscription NewMessage {
   newMessage {
@@ -587,3 +644,35 @@ export function useMemberActiveInChatSubscription(baseOptions: Apollo.Subscripti
       }
 export type MemberActiveInChatSubscriptionHookResult = ReturnType<typeof useMemberActiveInChatSubscription>;
 export type MemberActiveInChatSubscriptionResult = Apollo.SubscriptionResult<MemberActiveInChatSubscription>;
+export const IsUserTypingDocument = gql`
+    subscription IsUserTyping($chatId: ID!) {
+  isUserTyping(chatId: $chatId) {
+    _id
+    name
+    image
+  }
+}
+    `;
+
+/**
+ * __useIsUserTypingSubscription__
+ *
+ * To run a query within a React component, call `useIsUserTypingSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useIsUserTypingSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useIsUserTypingSubscription({
+ *   variables: {
+ *      chatId: // value for 'chatId'
+ *   },
+ * });
+ */
+export function useIsUserTypingSubscription(baseOptions: Apollo.SubscriptionHookOptions<IsUserTypingSubscription, IsUserTypingSubscriptionVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useSubscription<IsUserTypingSubscription, IsUserTypingSubscriptionVariables>(IsUserTypingDocument, options);
+      }
+export type IsUserTypingSubscriptionHookResult = ReturnType<typeof useIsUserTypingSubscription>;
+export type IsUserTypingSubscriptionResult = Apollo.SubscriptionResult<IsUserTypingSubscription>;

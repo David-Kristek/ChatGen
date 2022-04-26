@@ -95,7 +95,9 @@ mutation SendMessage($body: messageBodyInput, $chatId: ID) {
 mutation LastActive($chatId: ID!) {
   lastActive(chatId: $chatId)
 }
-
+mutation UserTyping($chatId: ID!) {
+  userTyping(chatId: $chatId)
+}
 subscription NewMessage {
   newMessage {
     _id
@@ -136,7 +138,14 @@ subscription MemberActiveInChat($chatId: ID!) {
   nowActiveInChat(chatId: $chatId) {
     userId
     active
-  }  
+  }
+}
+subscription IsUserTyping($chatId: ID!) {
+  isUserTyping(chatId: $chatId) {
+    _id
+    name
+    image
+  }
 }
 
 # https://www.youtube.com/watch?v=PYDGjTufGsk&ab_channel=JamieBarton

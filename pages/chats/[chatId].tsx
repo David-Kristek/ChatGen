@@ -1,23 +1,17 @@
-import React, {
-  useRef,
-  useEffect,
-  useState,
-  useCallback,
-  useMemo,
-} from "react";
+import React, { useRef, useEffect, useState, useMemo } from "react";
 import Message from "../../components/Message";
 import { MdAddPhotoAlternate, MdSend } from "react-icons/md";
 import { AiOutlinePlusCircle } from "react-icons/ai";
 import { useRouter } from "next/router";
 import { getSession, useSession } from "next-auth/react";
 import {
-  GetChatsDocument,
   GetMessagesDocument,
   MemberActiveInChatDocument,
   NewMessageDocument,
   useGetMessagesQuery,
   useLastActiveMutation,
   useSendMessageMutation,
+  useUserTypingMutation,
 } from "../../graphql/generated/schema";
 import { useApolloClient } from "@apollo/client";
 import { initializeApollo } from "../../lib/apolloClient";
@@ -29,7 +23,7 @@ import {
   updateChat,
 } from "../../lib/chatHelper";
 import ReadBy from "../../components/ReadBy";
-
+import TypingUsers from "../../components/TypingUsers";
 function Chat() {
   const apolloClient = useApolloClient();
   const router = useRouter();
@@ -48,6 +42,9 @@ function Chat() {
     variables: { chatId: String(chatId) },
   });
 
+  const [isTyping, mtRes] = useUserTypingMutation({
+    variables: { chatId: String(chatId) },
+  });
   const contact = useMemo(() => {
     if (!data) return;
     const chat = data.getMessages?.chat;
@@ -60,6 +57,7 @@ function Chat() {
   };
   const [readBy, setreadBy] = useState<any>(data?.getMessages?.chat.members);
   const [messageInput, setMessageInput] = useState("");
+
   const onSubmit = async (e: any) => {
     e.preventDefault();
     if (!messageInput) return;
@@ -68,6 +66,7 @@ function Chat() {
     const res = await sendMessage({
       variables: { body: { text: messageInput }, chatId: String(chatId) },
     });
+
     await lastActive();
     apolloClient.cache.updateQuery(
       {
@@ -165,6 +164,7 @@ function Chat() {
               />
             </div>
           ))}
+
         {readBy && data?.getMessages?.messages && (
           <ReadBy
             members={readBy}
@@ -173,6 +173,15 @@ function Chat() {
             }
           />
         )}
+        <TypingUsers
+          lastMessage={
+            data?.getMessages?.messages
+              ? data?.getMessages?.messages[
+                  data.getMessages.messages?.length - 1
+                ]
+              : undefined
+          }
+        />
         <div ref={bottomOfChat}></div>
       </div>
       <form className="w-full h-16 relative" onSubmit={onSubmit}>
@@ -183,6 +192,9 @@ function Chat() {
             className="input w-[85%]"
             placeholder="Napište @JohnDoe ..."
             onChange={(e) => setMessageInput(e.target.value)}
+            onKeyUp={() => {
+              if (messageInput.length > 1) isTyping();
+            }}
             value={messageInput}
           />
           <MdSend className="icon" onClick={onSubmit} />

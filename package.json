@@ -52,6 +52,7 @@
     "react-spinners": "^0.11.0",
     "react-top-loading-bar": "^2.1.0",
     "reflect-metadata": "^0.1.13",
+    "timeout-refresh": "^2.0.1",
     "tls": "^0.0.1",
     "truncate": "^3.0.0",
     "type-graphql": "^1.1.1",

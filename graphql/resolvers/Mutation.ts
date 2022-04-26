@@ -7,11 +7,7 @@ import Message from "../../Models/Message";
 import { setLastActiveInChat } from "./resolveHelper";
 import { isUserInChat } from "./resolveHelper";
 export default {
-  addContact: async (
-    parent,
-    { id },
-    { user, pubSub }: context
-  ) => {
+  addContact: async (parent, { id }, { user, pubSub }: context) => {
     const newContact = new Chat({
       members: [{ member: id }, { member: user._id }],
       group: false,
@@ -34,11 +30,7 @@ export default {
 
     return chat;
   },
-  sendMessage: async (
-    parent,
-    { body, chatId },
-    { user, pubSub }: context
-  ) => {
+  sendMessage: async (parent, { body, chatId }, { user, pubSub }: context) => {
     const chat = await Chat.findOne({
       _id: chatId,
       ...isUserInChat(user),
@@ -80,6 +72,10 @@ export default {
       active: new Date(),
     });
     await setLastActiveInChat(chatId, user._id, pubSub);
+    return true;
+  },
+  userTyping: (_, { chatId }, { user, pubSub }: context) => {
+    pubSub.publish("chat:userTyping", chatId, user);    
     return true;
   },
 };

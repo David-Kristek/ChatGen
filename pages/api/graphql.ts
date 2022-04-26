@@ -17,12 +17,16 @@ const pubSub = createPubSub<{
     chatId: string,
     member: { userId: string; active: Date }
   ];
+  "chat:userTyping": [
+    chatId: string,
+    user: User
+  ];
 }>();
 
 export type pubSub = typeof pubSub;
 export type context = {
   user: User;
-  pubSub: any;
+  pubSub: pubSub;
 };
 const server = createServer<
   {

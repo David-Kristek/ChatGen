@@ -3,7 +3,6 @@ import { Field, ObjectType } from "type-graphql";
 
 export const typeDefs = gql`
   scalar Date
-
   type Query {
     searchForUser(text: String!): [user!]
     getChats: [chat!]
@@ -16,12 +15,15 @@ export const typeDefs = gql`
     broadcastRandomNumber: Boolean
     lastActive(chatId: ID!): Boolean
     messageRead(messageId: ID!): Boolean
+    userTyping(chatId: ID!): Boolean
+
   }
   type Subscription {
     newMessage: message
     newChat: chat
     globalCounter: message
     nowActiveInChat(chatId: ID!): nowActiveInChatOutput
+    isUserTyping(chatId: ID!): user
   }
   type user {
     _id: ID!
