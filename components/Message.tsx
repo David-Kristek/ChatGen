@@ -1,14 +1,15 @@
 import React from "react";
 import { User } from "../graphql/generated/schema";
+import FirstMessage from "./FirstMessage";
 // import { User } from "../Models/Types";
 
 interface Props {
   received?: User;
-  text: string;
+  body: any;
 }
 
-export default function Message({ received, text }: Props) {
-  // u last precteno pred minutami 
+export default function Message({ received, body }: Props) {
+  // u last precteno pred minutami
   return (
     <div
       className={`w-full px-[5%] flex relative mb-5 cursor-pointer ${
@@ -23,15 +24,21 @@ export default function Message({ received, text }: Props) {
           referrerPolicy="no-referrer"
         />
       )}
-      <div
-        className={`text-white rounded-lg py-2 px-4 max-w-[50%] transition-all  ${
-          received
-            ? "bg-bluegreen rounded-bl-none hover:bg-[#265e4d] "
-            : "bg-lightgreen rounded-br-none hover:bg-green-800"
-        }`}
-      >
-        {text}
-      </div>
+      {body?.text ? (
+        <div
+          className={`text-white rounded-lg py-2 px-4 max-w-[50%] transition-all  ${
+            received
+              ? "bg-bluegreen rounded-bl-none hover:bg-[#265e4d] "
+              : "bg-lightgreen rounded-br-none hover:bg-green-800"
+          }`}
+        >
+          {body?.text}
+        </div>
+      ) : body?.msg === "first" ? (
+        <FirstMessage received={received} />
+      ) : (
+        <>{JSON.stringify(body)}</>
+      )}
     </div>
   );
 }

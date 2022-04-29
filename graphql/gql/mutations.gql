@@ -1,0 +1,26 @@
+mutation SendMessage($body: messageBodyInput, $chatId: ID) {
+  sendMessage(body: $body, chatId: $chatId) {
+    _id
+    body {
+      text
+    }
+    chat {
+      _id
+    }
+    sendFrom {
+      name
+      image
+      _id
+    }
+  }
+}
+
+mutation LastActive($chatId: ID!) {
+  lastActive(chatId: $chatId)
+}
+mutation UserTyping($chatId: ID!) {
+  userTyping(chatId: $chatId)
+}
+mutation ApproveChat($chatId: ID!)  {
+  approveChat(chatId: $chatId)
+}

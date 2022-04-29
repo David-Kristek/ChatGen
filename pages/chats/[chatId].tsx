@@ -5,6 +5,7 @@ import { AiOutlinePlusCircle } from "react-icons/ai";
 import { useRouter } from "next/router";
 import { getSession, useSession } from "next-auth/react";
 import {
+  ChatActionsDocument,
   GetMessagesDocument,
   MemberActiveInChatDocument,
   NewMessageDocument,
@@ -24,6 +25,7 @@ import {
 } from "../../lib/chatHelper";
 import ReadBy from "../../components/ReadBy";
 import TypingUsers from "../../components/TypingUsers";
+import FirstMessage from "../../components/FirstMessage";
 function Chat() {
   const apolloClient = useApolloClient();
   const router = useRouter();
@@ -62,7 +64,6 @@ function Chat() {
     e.preventDefault();
     if (!messageInput) return;
     setMessageInput("");
-
     const res = await sendMessage({
       variables: { body: { text: messageInput }, chatId: String(chatId) },
     });
@@ -75,6 +76,7 @@ function Chat() {
       },
       (data) => addNewMessage(data, res.data?.sendMessage)
     );
+    updateChat(res.data?.sendMessage, apolloClient);
   };
   const setLastActive = () => {
     lastActive().then((res) => console.log("res", res));
@@ -86,7 +88,7 @@ function Chat() {
         if (!subscriptionData.data) return prev;
         // @ts-ignore
         const newMessage = subscriptionData.data.newMessage;
-        updateChat(newMessage, apolloClient);
+        console.log("subscribe next video ff");
 
         if (newMessage.chat._id === chatId) {
           setLastActive();
@@ -115,6 +117,22 @@ function Chat() {
         );
         setreadBy(newData.getMessages.chat.members);
         return newData;
+      },
+    });
+    subscribeToMore({
+      document: ChatActionsDocument,
+      variables: { chatId: String(chatId) },
+      updateQuery: (prev, { subscriptionData }) => {
+        console.log("chatAction", subscriptionData);
+        if (!subscriptionData) return prev;
+        // @ts-ignore
+        const action = subscriptionData.data.chatActions;
+        if (action === "approved") {
+          var newObject = JSON.parse(JSON.stringify(prev));
+          newObject.getMessages.chat.approved = true;
+          return newObject;
+        }
+        return prev;
       },
     });
   }, []);
@@ -154,7 +172,7 @@ function Chat() {
                 }
               />
               <Message
-                text={message?.body?.text ?? ""}
+                body={message.body}
                 received={
                   auth?.userId != message.sendFrom._id
                     ? message.sendFrom
@@ -164,21 +182,18 @@ function Chat() {
               />
             </div>
           ))}
-
         {readBy && data?.getMessages?.messages && (
           <ReadBy
             members={readBy}
             lastMessage={
-              data?.getMessages?.messages[data.getMessages.messages?.length - 1]
+              data.getMessages.messages[data.getMessages.messages?.length - 1]
             }
           />
         )}
         <TypingUsers
           lastMessage={
             data?.getMessages?.messages
-              ? data?.getMessages?.messages[
-                  data.getMessages.messages?.length - 1
-                ]
+              ? data.getMessages.messages[data.getMessages.messages?.length - 1]
               : undefined
           }
         />
@@ -190,6 +205,7 @@ function Chat() {
           <input
             type="text"
             className="input w-[85%]"
+            disabled={!data?.getMessages?.chat.approved ?? true}
             placeholder="Napište @JohnDoe ..."
             onChange={(e) => setMessageInput(e.target.value)}
             onKeyUp={() => {

@@ -1,0 +1,79 @@
+query searchForUser($search: String!) {
+  searchForUser(text: $search) {
+    name
+    email
+    image
+    _id
+  }
+}
+mutation AddContact($addContactId: ID!) {
+  addContact(id: $addContactId) {
+    _id
+    members {
+      member {
+        name
+        image
+      }
+    }
+    group
+  }
+}
+query getChats {
+  getChats {
+    _id
+    group
+    name
+    image
+    members {
+      member {
+        name
+        image
+        _id
+      }
+      lastActive
+    }
+    lastMessage {
+      _id
+      sendFrom {
+        name
+        _id
+        image
+      }
+      body {
+        text
+      }
+    }
+  }
+}
+query GetMessages($chatId: ID!) {
+  getMessages(id: $chatId) {
+    messages {
+      _id
+      body {
+        text
+        msg
+      }
+      sendFrom {
+        _id
+        image
+        name
+      }
+      createdAt
+    }
+    chat {
+      _id
+      group
+      name
+      image
+      approved
+      members {
+        member {
+          _id
+          name
+          image
+        }
+        lastActive
+      }
+    }
+  }
+}

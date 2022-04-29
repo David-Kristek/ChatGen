@@ -1,0 +1,55 @@
+
+subscription NewMessage {
+  newMessage {
+    _id
+    sendFrom {
+      _id
+      name
+      image
+    }
+    body {
+      text
+    }
+    chat {
+      _id
+    }
+  }
+}
+subscription NewChat {
+  newChat {
+    _id
+    members {
+      member {
+        name
+        image
+      }
+      lastActive
+    }
+    group
+    name
+    image
+    lastMessage {
+      body {
+        text
+      }
+    }
+  }
+}
+subscription MemberActiveInChat($chatId: ID!) {
+  nowActiveInChat(chatId: $chatId) {
+    userId
+    active
+  }
+}
+subscription IsUserTyping($chatId: ID!) {
+  isUserTyping(chatId: $chatId) {
+    _id
+    name
+    image
+  }
+}
+subscription ChatActions($chatId: ID!) {
+  chatActions(chatId: $chatId)
+}
+
+# https://www.youtube.com/watch?v=PYDGjTufGsk&ab_channel=JamieBarton

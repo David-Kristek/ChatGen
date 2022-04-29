@@ -50,8 +50,8 @@ export default function TypingUsers({
 
   return (
     <>
-      {typingUsers.map((user) => (
-        <p className="text-white pl-[5%] flex gap-x-3 font-semibold">
+      {typingUsers.map((user, index) => (
+        <p className="text-white pl-[5%] flex gap-x-3 font-semibold" key={index}>
           @{user.user.name} píše
           <PulseLoader color="white" speedMultiplier={0.5} size={8} />
         </p>

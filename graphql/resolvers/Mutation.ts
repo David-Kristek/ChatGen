@@ -6,29 +6,39 @@ import { context, pubSub } from "../../pages/api/graphql";
 import Message from "../../Models/Message";
 import { setLastActiveInChat } from "./resolveHelper";
 import { isUserInChat } from "./resolveHelper";
+import { async } from "@firebase/util";
 export default {
   addContact: async (parent, { id }, { user, pubSub }: context) => {
     const newContact = new Chat({
-      members: [{ member: id }, { member: user._id }],
+      members: [ { member: user._id }, { member: id }],
       group: false,
       lastActivity: new Date(),
     });
-    const { _id } = await newContact.save();
-    const chat = await Chat.findOne({ _id }).populate("members.member");
+    const { _id: chatId } = await newContact.save();
+    const chat = await Chat.findOne({ _id: chatId }).populate("members.member");
     await User.updateOne(
       { _id: id },
-      { $push: { friends: user._id }, $addToSet: { chats: _id } }
+      { $push: { friends: user._id }, $addToSet: { chats: chatId } }
     );
     await User.updateOne(
       { _id: user._id },
-      { $push: { friends: id }, $addToSet: { chats: _id } }
+      { $push: { friends: id }, $addToSet: { chats: chatId } }
     );
     // console.log("published to ", id);
+
+    // creates first message for the chat
+    const res = await (new Message({
+      body: { msg: "first" },
+      sendFrom: user._id,
+      chat: chatId,
+    })).save();
+    console.log(res);
 
     pubSub.publish("user:newChat", id, chat);
     pubSub.publish("user:newChat", user._id, chat);
 
     return chat;
+
   },
   sendMessage: async (parent, { body, chatId }, { user, pubSub }: context) => {
     const chat = await Chat.findOne({
@@ -36,6 +46,7 @@ export default {
       ...isUserInChat(user),
     });
     if (!chat) return {}; // error chat not found or not member
+    if (!chat.approved) return {}; // error chat is not approved
     const newMessage = await new MessageModel({
       body,
       sendFrom: user._id,
@@ -75,7 +86,20 @@ export default {
     return true;
   },
   userTyping: (_, { chatId }, { user, pubSub }: context) => {
-    pubSub.publish("chat:userTyping", chatId, user);    
+    pubSub.publish("chat:userTyping", chatId, user);
+    return true;
+  },
+  approveChat: async (_, { chatId }, { user, pubSub }: context) => {    
+    const chat = await Chat.findOne({ _id: chatId });    
+    if (!chat) return {};
+    console.log(user._id != chat.members[1].member,user._id, chat.members[1].member );
+    
+    if (user._id != chat.members[1].member) return {}; // error you cant approve chat by yourselve
+    const chatA = await Chat.updateOne({ _id: chatId }, { approved: true });
+    pubSub.publish("chat:actions", chatId, "approved");
+    console.log(chatA, "updated");
+    
+    // subscribe to more
     return true;
   },
 };

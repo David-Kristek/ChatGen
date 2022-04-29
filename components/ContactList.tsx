@@ -2,6 +2,7 @@ import { useRouter } from "next/router";
 import React, { useEffect } from "react";
 import {
   NewChatDocument,
+  NewMessageDocument,
   useGetChatsQuery,
   useNewChatSubscription,
 } from "../graphql/generated/schema";
@@ -15,7 +16,6 @@ export default function ContactList() {
   useEffect(() => {
     // if (!loading && (chats?.getChats?.length ?? 0) > 0) {
     // }
-    console.log("starting on ");
     // subscription is sent even for the user himself
     subscribeToMore({
       document: NewChatDocument,
@@ -30,7 +30,31 @@ export default function ContactList() {
         };
       },
     });
-  }, [chats]);
+    subscribeToMore({
+      document: NewMessageDocument,
+      updateQuery: (prev, { subscriptionData }) => {        
+        
+        let thisChat;
+        // @ts-ignore
+        const newMessage = subscriptionData.data.newMessage;
+        console.log(newMessage);
+        const getChats = prev.getChats;
+        if (!getChats) return prev;
+        let chats = getChats.filter((chat, index) => {
+          if (chat._id === newMessage?.chat?._id) {
+            thisChat = chat;
+            return false;
+          }
+          return true;
+        });
+        thisChat = { ...thisChat, lastMessage: newMessage };
+        chats = [thisChat, ...chats];
+        return {
+          getChats: chats,
+        };
+      },
+    });
+  }, []);
 
   return (
     <div className="mt-10">

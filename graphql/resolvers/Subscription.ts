@@ -22,4 +22,9 @@ export default {
       pubSub.subscribe("chat:userTyping", chatId),
     resolve: (payload) => payload,
   },
+  chatActions: {
+    subscribe: (_, { chatId }, { pubSub, user }: context) =>
+      pubSub.subscribe("chat:actions", chatId),
+    resolve: (payload) => payload,
+  },
 };

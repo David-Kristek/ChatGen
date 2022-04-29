@@ -11,7 +11,7 @@ interface Props {
 export default function ReadBy({ lastMessage, members }: Props) {
   const { data: auth } = useSession();
   const [hover, setHover] = useState(false);
-  
+
   const timeDifference = useCallback(
     (date: Date) => {
       const time = new Date(date).getTime();
@@ -29,7 +29,7 @@ export default function ReadBy({ lastMessage, members }: Props) {
     },
     [hover]
   );
-  if(!lastMessage) return <></>
+  if (!lastMessage) return <></>;
   return (
     <div
       className={`my-4 cursor-pointer flex px-[5%] z-20 relative ${
@@ -39,7 +39,11 @@ export default function ReadBy({ lastMessage, members }: Props) {
       }`}
     >
       {members.map((member, index) => {
-        if (member.member._id === auth?.userId) return <div key={index}></div>;
+        if (
+          member.member._id === auth?.userId ||
+          lastMessage.sendFrom._id === member.member._id
+        )
+          return <div key={index}></div>;
         if (
           new Date(member.lastActive).getTime() + 1000 >
           new Date(lastMessage.createdAt).getTime()
@@ -56,9 +60,11 @@ export default function ReadBy({ lastMessage, members }: Props) {
                 width={30}
                 className=" rounded-full  border-black border-solid "
               />
-              <div className={`hidden group-hover:block absolute bg-black text-white rounded-md p-2 bottom-full whitespace-nowrap ${
-                  lastMessage.sendFrom._id === auth?.userId ? "right-0" : "" 
-                } z-20`}>
+              <div
+                className={`hidden group-hover:block absolute bg-black text-white rounded-md p-2 bottom-full whitespace-nowrap ${
+                  lastMessage.sendFrom._id === auth?.userId ? "right-0" : ""
+                } z-20`}
+              >
                 {member.member.name}
                 {" " + timeDifference(member.lastActive)}
               </div>

@@ -21,6 +21,7 @@ const pubSub = createPubSub<{
     chatId: string,
     user: User
   ];
+  "chat:actions" : [chatId: string, action: string]
 }>();
 
 export type pubSub = typeof pubSub;

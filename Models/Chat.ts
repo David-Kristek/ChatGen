@@ -9,7 +9,6 @@ const chatSchema = new Schema(
         member: {
           type: mongoose.Schema.Types.ObjectId,
           ref: "user",
-          unique: true, 
         },
         lastActive: {
           type: Date,
@@ -20,6 +19,7 @@ const chatSchema = new Schema(
     name: String,
     image: String,
     group: Boolean,
+    approved: {type: Boolean, default: false}, 
     lastMessage: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "message",

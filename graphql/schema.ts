@@ -16,6 +16,7 @@ export const typeDefs = gql`
     lastActive(chatId: ID!): Boolean
     messageRead(messageId: ID!): Boolean
     userTyping(chatId: ID!): Boolean
+    approveChat(chatId: ID!): Boolean
 
   }
   type Subscription {
@@ -24,6 +25,7 @@ export const typeDefs = gql`
     globalCounter: message
     nowActiveInChat(chatId: ID!): nowActiveInChatOutput
     isUserTyping(chatId: ID!): user
+    chatActions(chatId: ID!): String
   }
   type user {
     _id: ID!
@@ -40,6 +42,7 @@ export const typeDefs = gql`
     name: String
     image: String
     lastMessage: message
+    approved: Boolean
   }
   type member {
     member: user!
@@ -50,8 +53,9 @@ export const typeDefs = gql`
   }
   type messageBody {
     text: String
+    msg: String
   }
-  input messageBodyInput {
+  input messageBodyInput {  
     text: String!
   }
   type message {
