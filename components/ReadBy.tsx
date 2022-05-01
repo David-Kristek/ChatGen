@@ -11,7 +11,6 @@ interface Props {
 export default function ReadBy({ lastMessage, members }: Props) {
   const { data: auth } = useSession();
   const [hover, setHover] = useState(false);
-
   const timeDifference = useCallback(
     (date: Date) => {
       const time = new Date(date).getTime();

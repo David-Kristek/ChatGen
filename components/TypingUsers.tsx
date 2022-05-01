@@ -11,8 +11,10 @@ import Timeout from "timeout-refresh";
 
 export default function TypingUsers({
   lastMessage,
+  height
 }: {
   lastMessage?: Message;
+  height?: number
 }) {
   const [typingUsers, setTypingUsers] = useState<
     { timeOut: any; user: User }[]
@@ -24,7 +26,11 @@ export default function TypingUsers({
     variables: { chatId: String(chatId) },
     onSubscriptionData: ({ subscriptionData }) => {
       const user = subscriptionData.data?.isUserTyping;
-      if (user?._id === auth?.userId || !user) return;
+      console.log(user, "typing");
+
+      if (user?._id === auth?.userId || !user) {
+        return;
+      }
       const userIsTyping = typingUsers.find(
         (userW) => userW.user._id === user?._id
       );
@@ -32,7 +38,7 @@ export default function TypingUsers({
         userIsTyping.timeOut.refresh();
         return;
       }
-      const to = Timeout.once(3000,  () => {
+      const to = Timeout.once(3000, () => {
         setTypingUsers((cur) =>
           cur.filter((userW) => userW.user._id !== user?._id)
         );
@@ -49,13 +55,18 @@ export default function TypingUsers({
   }, [lastMessage]);
 
   return (
-    <>
+      <div className={`w-full h-12`}>
       {typingUsers.map((user, index) => (
-        <p className="text-white pl-[5%] flex gap-x-3 font-semibold" key={index}>
+        <p
+          className="text-white pl-[5%] flex gap-x-3 font-semibold"
+          key={index}
+        >
           @{user.user.name} píše
           <PulseLoader color="white" speedMultiplier={0.5} size={8} />
         </p>
       ))}
-    </>
+      
+
+    </div>
   );
 }

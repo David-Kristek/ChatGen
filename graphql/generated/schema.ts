@@ -19,10 +19,11 @@ export type Scalars = {
 export type Mutation = {
   __typename?: 'Mutation';
   addContact?: Maybe<Chat>;
-  approveChat?: Maybe<Scalars['String']>;
+  approveChat?: Maybe<Scalars['Boolean']>;
   broadcastRandomNumber?: Maybe<Scalars['Boolean']>;
   lastActive?: Maybe<Scalars['Boolean']>;
   messageRead?: Maybe<Scalars['Boolean']>;
+  removeChat?: Maybe<Scalars['Boolean']>;
   sendMessage?: Maybe<Message>;
   userTyping?: Maybe<Scalars['Boolean']>;
 };
@@ -48,6 +49,11 @@ export type MutationMessageReadArgs = {
 };
 
 
+export type MutationRemoveChatArgs = {
+  chatId: Scalars['ID'];
+};
+
+
 export type MutationSendMessageArgs = {
   body?: InputMaybe<MessageBodyInput>;
   chatId?: InputMaybe<Scalars['ID']>;
@@ -61,12 +67,19 @@ export type MutationUserTypingArgs = {
 export type Query = {
   __typename?: 'Query';
   getChats?: Maybe<Array<Chat>>;
-  getMessages?: Maybe<GetMessagesOutput>;
+  getCurrentChat: Chat;
+  getMessages?: Maybe<Array<Message>>;
   searchForUser?: Maybe<Array<User>>;
 };
 
 
+export type QueryGetCurrentChatArgs = {
+  chatId: Scalars['ID'];
+};
+
+
 export type QueryGetMessagesArgs = {
+  cursor?: InputMaybe<Scalars['Int']>;
   id: Scalars['ID'];
 };
 
@@ -81,7 +94,9 @@ export type Subscription = {
   globalCounter?: Maybe<Message>;
   isUserTyping?: Maybe<User>;
   newChat?: Maybe<Chat>;
+  newContact?: Maybe<Message>;
   newMessage?: Maybe<Message>;
+  newMsg?: Maybe<Message>;
   nowActiveInChat?: Maybe<NowActiveInChatOutput>;
 };
 
@@ -109,12 +124,6 @@ export type Chat = {
   lastMessage?: Maybe<Message>;
   members: Array<Member>;
   name?: Maybe<Scalars['String']>;
-};
-
-export type GetMessagesOutput = {
-  __typename?: 'getMessagesOutput';
-  chat: Chat;
-  messages?: Maybe<Array<Message>>;
 };
 
 export type Member = {
@@ -196,7 +205,7 @@ export type ApproveChatMutationVariables = Exact<{
 }>;
 
 
-export type ApproveChatMutation = { __typename?: 'Mutation', approveChat?: string | null };
+export type ApproveChatMutation = { __typename?: 'Mutation', approveChat?: boolean | null };
 
 export type SearchForUserQueryVariables = Exact<{
   search: Scalars['String'];
@@ -215,14 +224,22 @@ export type AddContactMutation = { __typename?: 'Mutation', addContact?: { __typ
 export type GetChatsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetChatsQuery = { __typename?: 'Query', getChats?: Array<{ __typename?: 'chat', _id: string, group: boolean, name?: string | null, image?: string | null, members: Array<{ __typename?: 'member', lastActive: any, member: { __typename?: 'user', name: string, image: string, _id: string } }>, lastMessage?: { __typename?: 'message', _id: string, sendFrom: { __typename?: 'user', name: string, _id: string, image: string }, body: { __typename?: 'messageBody', text?: string | null } } | null }> | null };
+export type GetChatsQuery = { __typename?: 'Query', getChats?: Array<{ __typename?: 'chat', _id: string, group: boolean, name?: string | null, image?: string | null, members: Array<{ __typename?: 'member', lastActive: any, member: { __typename?: 'user', name: string, image: string, _id: string } }>, lastMessage?: { __typename?: 'message', _id: string, createdAt?: any | null, sendFrom: { __typename?: 'user', name: string, _id: string, image: string }, body: { __typename?: 'messageBody', text?: string | null } } | null }> | null };
 
 export type GetMessagesQueryVariables = Exact<{
+  chatId: Scalars['ID'];
+  cursor?: InputMaybe<Scalars['Int']>;
+}>;
+
+
+export type GetMessagesQuery = { __typename?: 'Query', getMessages?: Array<{ __typename?: 'message', _id: string, createdAt?: any | null, body: { __typename?: 'messageBody', text?: string | null, msg?: string | null }, sendFrom: { __typename?: 'user', _id: string, image: string, name: string } }> | null };
+
+export type GetCurrentChatQueryVariables = Exact<{
   chatId: Scalars['ID'];
 }>;
 
 
-export type GetMessagesQuery = { __typename?: 'Query', getMessages?: { __typename?: 'getMessagesOutput', messages?: Array<{ __typename?: 'message', _id: string, createdAt?: any | null, body: { __typename?: 'messageBody', text?: string | null, msg?: string | null }, sendFrom: { __typename?: 'user', _id: string, image: string, name: string } }> | null, chat: { __typename?: 'chat', _id: string, group: boolean, name?: string | null, image?: string | null, approved?: boolean | null, members: Array<{ __typename?: 'member', lastActive: any, member: { __typename?: 'user', _id: string, name: string, image: string } }> } } | null };
+export type GetCurrentChatQuery = { __typename?: 'Query', getCurrentChat: { __typename?: 'chat', _id: string, group: boolean, name?: string | null, image?: string | null, approved?: boolean | null, members: Array<{ __typename?: 'member', lastActive: any, member: { __typename?: 'user', _id: string, name: string, image: string } }> } };
 
 export type NewMessageSubscriptionVariables = Exact<{ [key: string]: never; }>;
 
@@ -232,7 +249,7 @@ export type NewMessageSubscription = { __typename?: 'Subscription', newMessage?:
 export type NewChatSubscriptionVariables = Exact<{ [key: string]: never; }>;
 
 
-export type NewChatSubscription = { __typename?: 'Subscription', newChat?: { __typename?: 'chat', _id: string, group: boolean, name?: string | null, image?: string | null, members: Array<{ __typename?: 'member', lastActive: any, member: { __typename?: 'user', name: string, image: string } }>, lastMessage?: { __typename?: 'message', body: { __typename?: 'messageBody', text?: string | null } } | null } | null };
+export type NewChatSubscription = { __typename?: 'Subscription', newChat?: { __typename?: 'chat', _id: string, group: boolean, name?: string | null, image?: string | null, members: Array<{ __typename?: 'member', lastActive: any, member: { __typename?: 'user', name: string, image: string } }>, lastMessage?: { __typename?: 'message', body: { __typename?: 'messageBody', text?: string | null, msg?: string | null } } | null } | null };
 
 export type MemberActiveInChatSubscriptionVariables = Exact<{
   chatId: Scalars['ID'];
@@ -254,6 +271,16 @@ export type ChatActionsSubscriptionVariables = Exact<{
 
 
 export type ChatActionsSubscription = { __typename?: 'Subscription', chatActions?: string | null };
+
+export type NewContactSubscriptionVariables = Exact<{ [key: string]: never; }>;
+
+
+export type NewContactSubscription = { __typename?: 'Subscription', newMessage?: { __typename?: 'message', _id: string, sendFrom: { __typename?: 'user', _id: string, name: string, image: string }, body: { __typename?: 'messageBody', text?: string | null }, chat?: { __typename?: 'chat', _id: string } | null } | null };
+
+export type NewMsgSubscriptionVariables = Exact<{ [key: string]: never; }>;
+
+
+export type NewMsgSubscription = { __typename?: 'Subscription', newMessage?: { __typename?: 'message', _id: string, sendFrom: { __typename?: 'user', _id: string, name: string, image: string }, body: { __typename?: 'messageBody', text?: string | null }, chat?: { __typename?: 'chat', _id: string } | null } | null };
 
 
 export const SendMessageDocument = gql`
@@ -494,6 +521,7 @@ export const GetChatsDocument = gql`
         _id
         image
       }
+      createdAt
       body {
         text
       }
@@ -529,36 +557,19 @@ export type GetChatsQueryHookResult = ReturnType<typeof useGetChatsQuery>;
 export type GetChatsLazyQueryHookResult = ReturnType<typeof useGetChatsLazyQuery>;
 export type GetChatsQueryResult = Apollo.QueryResult<GetChatsQuery, GetChatsQueryVariables>;
 export const GetMessagesDocument = gql`
-    query GetMessages($chatId: ID!) {
-  getMessages(id: $chatId) {
-    messages {
-      _id
-      body {
-        text
-        msg
-      }
-      sendFrom {
-        _id
-        image
-        name
-      }
-      createdAt
+    query GetMessages($chatId: ID!, $cursor: Int) {
+  getMessages(id: $chatId, cursor: $cursor) {
+    _id
+    body {
+      text
+      msg
     }
-    chat {
+    sendFrom {
       _id
-      group
-      name
       image
-      approved
-      members {
-        member {
-          _id
-          name
-          image
-        }
-        lastActive
-      }
+      name
     }
+    createdAt
   }
 }
     `;
@@ -576,6 +587,7 @@ export const GetMessagesDocument = gql`
  * const { data, loading, error } = useGetMessagesQuery({
  *   variables: {
  *      chatId: // value for 'chatId'
+ *      cursor: // value for 'cursor'
  *   },
  * });
  */
@@ -590,6 +602,53 @@ export function useGetMessagesLazyQuery(baseOptions?: Apollo.LazyQueryHookOption
 export type GetMessagesQueryHookResult = ReturnType<typeof useGetMessagesQuery>;
 export type GetMessagesLazyQueryHookResult = ReturnType<typeof useGetMessagesLazyQuery>;
 export type GetMessagesQueryResult = Apollo.QueryResult<GetMessagesQuery, GetMessagesQueryVariables>;
+export const GetCurrentChatDocument = gql`
+    query GetCurrentChat($chatId: ID!) {
+  getCurrentChat(chatId: $chatId) {
+    _id
+    group
+    name
+    image
+    approved
+    members {
+      member {
+        _id
+        name
+        image
+      }
+      lastActive
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetCurrentChatQuery__
+ *
+ * To run a query within a React component, call `useGetCurrentChatQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCurrentChatQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetCurrentChatQuery({
+ *   variables: {
+ *      chatId: // value for 'chatId'
+ *   },
+ * });
+ */
+export function useGetCurrentChatQuery(baseOptions: Apollo.QueryHookOptions<GetCurrentChatQuery, GetCurrentChatQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetCurrentChatQuery, GetCurrentChatQueryVariables>(GetCurrentChatDocument, options);
+      }
+export function useGetCurrentChatLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetCurrentChatQuery, GetCurrentChatQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetCurrentChatQuery, GetCurrentChatQueryVariables>(GetCurrentChatDocument, options);
+        }
+export type GetCurrentChatQueryHookResult = ReturnType<typeof useGetCurrentChatQuery>;
+export type GetCurrentChatLazyQueryHookResult = ReturnType<typeof useGetCurrentChatLazyQuery>;
+export type GetCurrentChatQueryResult = Apollo.QueryResult<GetCurrentChatQuery, GetCurrentChatQueryVariables>;
 export const NewMessageDocument = gql`
     subscription NewMessage {
   newMessage {
@@ -647,6 +706,7 @@ export const NewChatDocument = gql`
     lastMessage {
       body {
         text
+        msg
       }
     }
   }
@@ -765,3 +825,83 @@ export function useChatActionsSubscription(baseOptions: Apollo.SubscriptionHookO
       }
 export type ChatActionsSubscriptionHookResult = ReturnType<typeof useChatActionsSubscription>;
 export type ChatActionsSubscriptionResult = Apollo.SubscriptionResult<ChatActionsSubscription>;
+export const NewContactDocument = gql`
+    subscription newContact {
+  newMessage {
+    _id
+    sendFrom {
+      _id
+      name
+      image
+    }
+    body {
+      text
+    }
+    chat {
+      _id
+    }
+  }
+}
+    `;
+
+/**
+ * __useNewContactSubscription__
+ *
+ * To run a query within a React component, call `useNewContactSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useNewContactSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useNewContactSubscription({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useNewContactSubscription(baseOptions?: Apollo.SubscriptionHookOptions<NewContactSubscription, NewContactSubscriptionVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useSubscription<NewContactSubscription, NewContactSubscriptionVariables>(NewContactDocument, options);
+      }
+export type NewContactSubscriptionHookResult = ReturnType<typeof useNewContactSubscription>;
+export type NewContactSubscriptionResult = Apollo.SubscriptionResult<NewContactSubscription>;
+export const NewMsgDocument = gql`
+    subscription NewMsg {
+  newMessage {
+    _id
+    sendFrom {
+      _id
+      name
+      image
+    }
+    body {
+      text
+    }
+    chat {
+      _id
+    }
+  }
+}
+    `;
+
+/**
+ * __useNewMsgSubscription__
+ *
+ * To run a query within a React component, call `useNewMsgSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useNewMsgSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useNewMsgSubscription({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useNewMsgSubscription(baseOptions?: Apollo.SubscriptionHookOptions<NewMsgSubscription, NewMsgSubscriptionVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useSubscription<NewMsgSubscription, NewMsgSubscriptionVariables>(NewMsgDocument, options);
+      }
+export type NewMsgSubscriptionHookResult = ReturnType<typeof useNewMsgSubscription>;
+export type NewMsgSubscriptionResult = Apollo.SubscriptionResult<NewMsgSubscription>;

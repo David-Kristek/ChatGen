@@ -20,7 +20,7 @@ interface Props {
 }
 
 export default function Contact({ chat, index }: Props) {
-  const { _id, name, image, members, group } = chat;
+  const { _id, name, image, members, group, lastMessage } = chat;
   const { data: auth } = useSession();
   const [contactLoading, setcontactLoading] = useState(false);
   const ref = useRef<LoadingBarRef>(null);
@@ -29,6 +29,19 @@ export default function Contact({ chat, index }: Props) {
     return contactSelecter(chat, String(auth?.userId));
   }, [chat]);
   const router = useRouter();
+  const isMessageNew = useMemo(() => {
+    const userLastActivityInChat = members.find(
+      (member) => auth?.userId === member.member._id
+    )?.lastActive;
+    
+    console.log(new Date(lastMessage?.createdAt).getTime() >
+    new Date(userLastActivityInChat).getTime()  + 1000 , new Date(lastMessage?.createdAt), new Date(userLastActivityInChat));
+    if(router.query.chatId === chat._id) return false;  
+    return (
+      new Date(lastMessage?.createdAt).getTime() >
+      new Date(userLastActivityInChat).getTime()  + 1000 
+    );
+  }, [lastMessage, router]);
   const menuItems = [
     { title: "Odstranit konverzaci" },
     { title: "Zablokovat uživatele" },
@@ -41,6 +54,7 @@ export default function Contact({ chat, index }: Props) {
       query: GetMessagesDocument,
       variables: { chatId: _id },
     });
+    console.log(_id);
     if (!isChatInCache) ref.current?.complete();
   };
   return (
@@ -65,13 +79,15 @@ export default function Contact({ chat, index }: Props) {
             referrerPolicy="no-referrer"
           />
           <div className="pl-6 flex flex-col">
-            <span className="text-xl ">{contact?.name}</span>
-            {chat.lastMessage && (
+            <span className={`text-xl ${isMessageNew && "font-bold"}`}>{contact?.name}</span>
+            {lastMessage && (
               <span className="text-[#ADADAD] text-xs pt-1">
-                <span className="font-bold text-lightgreen">
-                  {chat.lastMessage.sendFrom.name.split(" ")[0] + ": "}
+                <span className={` text-lightgreen ${isMessageNew ? "font-extrabold" : "font-bold"} `}>
+                  {lastMessage.sendFrom.name.split(" ")[0] + ": "}
                 </span>
-                {truncate(String(chat.lastMessage.body.text), 44)}
+                <span className={isMessageNew ? "font-bold" : ""}>
+                {truncate(String(lastMessage.body.text), 44)}
+                </span>
               </span>
             )}
           </div>

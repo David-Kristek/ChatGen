@@ -6,7 +6,8 @@ export const typeDefs = gql`
   type Query {
     searchForUser(text: String!): [user!]
     getChats: [chat!]
-    getMessages(id: ID!): getMessagesOutput
+    getMessages(id: ID!, cursor: Int): [message!]
+    getCurrentChat(chatId: ID!): chat!
   }
 
   type Mutation {
@@ -17,7 +18,7 @@ export const typeDefs = gql`
     messageRead(messageId: ID!): Boolean
     userTyping(chatId: ID!): Boolean
     approveChat(chatId: ID!): Boolean
-
+    removeChat(chatId: ID!): Boolean
   }
   type Subscription {
     newMessage: message
@@ -68,10 +69,6 @@ export const typeDefs = gql`
   type post {
     author: String
     comment: String
-  }
-  type getMessagesOutput {
-    messages: [message!]
-    chat: chat!
   }
   type nowActiveInChatOutput {
     userId: String

@@ -33,7 +33,6 @@ export default function AddContact() {
   }, [search]);
   useEffect(() => {
     if (!addContactData) return;
-    console.log(addContactData, "New contact added");
     // redirect to `chat/${addContactData._id}`
     // push to chats on left
     setSearch("");

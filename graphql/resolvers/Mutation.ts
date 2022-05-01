@@ -24,7 +24,6 @@ export default {
       { _id: user._id },
       { $push: { friends: id }, $addToSet: { chats: chatId } }
     );
-    // console.log("published to ", id);
 
     // creates first message for the chat
     const res = await (new Message({
@@ -97,7 +96,18 @@ export default {
     if (user._id != chat.members[1].member) return {}; // error you cant approve chat by yourselve
     const chatA = await Chat.updateOne({ _id: chatId }, { approved: true });
     pubSub.publish("chat:actions", chatId, "approved");
-    console.log(chatA, "updated");
+    
+    // subscribe to more
+    return true;
+  },
+  removeChat: async (_, { chatId }, { user, pubSub }: context) => {    
+    const chat = await Chat.findOne({ _id: chatId });    
+    if (!chat) return {};
+    console.log(user._id != chat.members[1].member,user._id, chat.members[1].member );
+    
+    if (user._id != chat.members[1].member) return {}; // error you cant delete chat by yourselve
+    const chatA = await Chat.deleteOne({ _id: chatId });
+    pubSub.publish("chat:actions", chatId, "removed ");
     
     // subscribe to more
     return true;

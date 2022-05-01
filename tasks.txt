@@ -5,9 +5,13 @@ time showing between messages        ✅
 already read vs not read             ✅
 is someone typing                    ✅
 new chat permissions                 ✅   
-pagination  
+pagination                           ✅
 group chat  
 blocking users  
 all page at least bit more responsive   
 testing     
 user status 
+
+
+
+bugs : contact list subscription not working

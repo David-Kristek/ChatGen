@@ -39,41 +39,42 @@ query getChats {
         _id
         image
       }
+      createdAt
       body {
         text
       }
     }
   }
 }
-query GetMessages($chatId: ID!) {
-  getMessages(id: $chatId) {
-    messages {
-      _id
-      body {
-        text
-        msg
-      }
-      sendFrom {
-        _id
-        image
-        name
-      }
-      createdAt
+query GetMessages($chatId: ID!, $cursor: Int) {
+  getMessages(id: $chatId, cursor: $cursor) {
+    _id
+    body {
+      text
+      msg
     }
-    chat {
+    sendFrom {
       _id
-      group
-      name
       image
-      approved
-      members {
-        member {
-          _id
-          name
-          image
-        }
-        lastActive
+      name
+    }
+    createdAt
+  }
+}
+query GetCurrentChat($chatId: ID!) {
+  getCurrentChat(chatId: $chatId) {
+    _id
+    group
+    name
+    image
+    approved
+    members {
+      member {
+        _id
+        name
+        image
       }
+      lastActive
     }
   }
 }

@@ -6,9 +6,11 @@ import { useRouter } from "next/router";
 import { getSession, useSession } from "next-auth/react";
 import {
   ChatActionsDocument,
+  GetCurrentChatDocument,
   GetMessagesDocument,
   MemberActiveInChatDocument,
   NewMessageDocument,
+  useGetCurrentChatQuery,
   useGetMessagesQuery,
   useLastActiveMutation,
   useSendMessageMutation,
@@ -25,21 +27,43 @@ import {
 } from "../../lib/chatHelper";
 import ReadBy from "../../components/ReadBy";
 import TypingUsers from "../../components/TypingUsers";
-import FirstMessage from "../../components/FirstMessage";
+import ClipLoader from "react-spinners/ClipLoader";
 function Chat() {
   const apolloClient = useApolloClient();
   const router = useRouter();
   const { data: auth } = useSession();
   const bottomOfChat = useRef<HTMLDivElement>(null);
+  const messagesRef = useRef<HTMLDivElement>(null);
 
+  const scrollToBottom = () => {
+    if (!bottomOfChat.current) return;
+    bottomOfChat.current.scrollIntoView({ behavior: "smooth" });
+  };
   const { chatId } = router.query;
   const [sendMessage, { data: newMessage, error, loading: sendLoading }] =
     useSendMessageMutation();
-  const { loading, data, subscribeToMore } = useGetMessagesQuery({
-    variables: { chatId: String(chatId) },
+  const [moreMessageLoading, setMoreMessageLoading] = useState(false);
+  const {
+    loading,
+    data,
+    subscribeToMore: subscribeToMoreMessages,
+    fetchMore,
+  } = useGetMessagesQuery({
+    variables: { chatId: String(chatId), cursor: 0 },
     fetchPolicy: "cache-first", // Used for first execution
     // nextFetchPolicy: "cache-only",
+    onCompleted: (datas) => {
+      console.log(datas.getMessages?.length, "length");
+
+      if (datas.getMessages && datas.getMessages?.length <= 14)
+        setTimeout(scrollToBottom, 40);
+    },
   });
+  const { data: chatData, subscribeToMore: subscribeToMoreChat } =
+    useGetCurrentChatQuery({
+      variables: { chatId: String(chatId) },
+      fetchPolicy: "cache-first",
+    });
   const [lastActive, { data: sent }] = useLastActiveMutation({
     variables: { chatId: String(chatId) },
   });
@@ -49,17 +73,12 @@ function Chat() {
   });
   const contact = useMemo(() => {
     if (!data) return;
-    const chat = data.getMessages?.chat;
+    const chat = chatData?.getCurrentChat;
     if (!chat) return;
     return contactSelecter(chat, String(auth?.userId));
   }, [data]);
-  const scrollToBottom = () => {
-    if (!bottomOfChat.current) return;
-    bottomOfChat.current.scrollIntoView({ behavior: "smooth" });
-  };
-  const [readBy, setreadBy] = useState<any>(data?.getMessages?.chat.members);
+  const [readBy, setreadBy] = useState<any>(chatData?.getCurrentChat.members);
   const [messageInput, setMessageInput] = useState("");
-
   const onSubmit = async (e: any) => {
     e.preventDefault();
     if (!messageInput) return;
@@ -69,35 +88,60 @@ function Chat() {
     });
 
     await lastActive();
+    console.log("updating ");
+
     apolloClient.cache.updateQuery(
       {
         query: GetMessagesDocument,
-        variables: { chatId },
+        variables: { chatId, cursor: 0 },
       },
       (data) => addNewMessage(data, res.data?.sendMessage)
     );
     updateChat(res.data?.sendMessage, apolloClient);
+    scrollToBottom();
   };
   const setLastActive = () => {
     lastActive().then((res) => console.log("res", res));
   };
+  const fetchMoreMessages = () => {
+    setMoreMessageLoading(true);
+    let scrollPosition = messagesRef.current?.scrollHeight;
+    fetchMore({
+      variables: { chatId: String(chatId), cursor: data?.getMessages?.length },
+      updateQuery: (prev, { fetchMoreResult }) => {
+        console.log(fetchMoreResult, "fetched more");
+
+        const newMessages = fetchMoreResult?.getMessages;
+        if (!newMessages || !prev.getMessages) return prev;
+        return {
+          getMessages: [...newMessages, ...prev.getMessages],
+        };
+      },
+    }).then(() => {
+      setMoreMessageLoading(false);
+      messagesRef.current?.scrollTo(
+        0,
+        Number(messagesRef.current.scrollHeight - (scrollPosition || 0))
+      );
+    });
+  };
   useEffect(() => {
-    subscribeToMore({
+    subscribeToMoreMessages({
       document: NewMessageDocument,
       updateQuery: (prev, { subscriptionData }) => {
         if (!subscriptionData.data) return prev;
         // @ts-ignore
         const newMessage = subscriptionData.data.newMessage;
-        console.log("subscribe next video ff");
 
         if (newMessage.chat._id === chatId) {
           setLastActive();
           return addNewMessage(prev, newMessage);
         }
+        scrollToBottom();
         return prev;
       },
     });
-    subscribeToMore({
+    subscribeToMoreChat({
       document: MemberActiveInChatDocument,
       variables: { chatId: String(chatId) },
       updateQuery: (prev, { subscriptionData }) => {
@@ -108,37 +152,33 @@ function Chat() {
         // @ts-ignore
         const newMemberActive = subscriptionData.data.nowActiveInChat;
 
-        newData.getMessages.chat.members = prev.getMessages?.chat?.members.map(
+        newData.getCurrentChat.members = prev.getCurrentChat.members.map(
           (member) => {
             return member.member._id === newMemberActive.userId
               ? { ...member, lastActive: newMemberActive.active }
               : member;
           }
         );
-        setreadBy(newData.getMessages.chat.members);
+        setreadBy(newData.getCurrentChat.members);
         return newData;
       },
     });
-    subscribeToMore({
+    subscribeToMoreChat({
       document: ChatActionsDocument,
       variables: { chatId: String(chatId) },
       updateQuery: (prev, { subscriptionData }) => {
-        console.log("chatAction", subscriptionData);
         if (!subscriptionData) return prev;
         // @ts-ignore
         const action = subscriptionData.data.chatActions;
         if (action === "approved") {
           var newObject = JSON.parse(JSON.stringify(prev));
-          newObject.getMessages.chat.approved = true;
+          newObject.getCurrentChat.approved = true;
           return newObject;
         }
         return prev;
       },
     });
   }, []);
-  useEffect(() => {
-    scrollToBottom();
-  }, [data]);
   return (
     <>
       <div className="flex-center justify-start pl-[6%] pt-5 pb-3">
@@ -152,7 +192,7 @@ function Chat() {
             onClick={scrollToBottom}
           />
         )}
-        <div className="text-2xl text-white  ml-3">
+        <div className="text-`2`xl text-white  ml-3">
           <span>{contact?.name}</span>
           <span className="flex-center justify-end">
             <div className="h-3 w-3 mr-1 bg-green-500 rounded-full" />
@@ -160,15 +200,32 @@ function Chat() {
           </span>
         </div>
       </div>
-      <div className="overflow-auto relative  h-[calc(100vh-175px)]">
-        {data?.getMessages?.messages &&
-          data.getMessages.messages.map((message, index) => (
+      <div
+        className="overflow-auto relative  h-[calc(100vh-175px)]"
+        onScroll={() => {
+          if (messagesRef.current?.scrollTop === 0) {
+            fetchMoreMessages();
+          }
+        }}
+        ref={messagesRef}
+      >
+        {moreMessageLoading ? (
+          <ClipLoader
+            color={"lightgreen"}
+            loading={moreMessageLoading}
+            size={35}
+            css={"display: block; margin: 0 auto; "}
+          />
+        ) : (
+          <div className={"h-[35px]"}></div>
+        )}
+        {data?.getMessages &&
+          data.getMessages.map((message, index) => (
             <div key={index}>
               <Time
                 time={message.createdAt}
                 prevTime={
-                  data?.getMessages?.messages &&
-                  data.getMessages.messages[index - 1]?.createdAt
+                  data?.getMessages && data.getMessages[index - 1]?.createdAt
                 }
               />
               <Message
@@ -182,21 +239,21 @@ function Chat() {
               />
             </div>
           ))}
-        {readBy && data?.getMessages?.messages && (
+        {readBy && data?.getMessages && (
           <ReadBy
             members={readBy}
-            lastMessage={
-              data.getMessages.messages[data.getMessages.messages?.length - 1]
-            }
+            lastMessage={data.getMessages[data.getMessages?.length - 1]}
           />
         )}
         <TypingUsers
           lastMessage={
-            data?.getMessages?.messages
-              ? data.getMessages.messages[data.getMessages.messages?.length - 1]
+            data?.getMessages
+              ? data.getMessages[data.getMessages?.length - 1]
               : undefined
           }
+          height={messagesRef.current?.scrollHeight}
         />
+        {/* <div className="h-8 w-8  bg-red-900 absolute">ad</div> */}
         <div ref={bottomOfChat}></div>
       </div>
       <form className="w-full h-16 relative" onSubmit={onSubmit}>
@@ -205,7 +262,7 @@ function Chat() {
           <input
             type="text"
             className="input w-[85%]"
-            disabled={!data?.getMessages?.chat.approved ?? true}
+            disabled={!chatData?.getCurrentChat.approved ?? true}
             placeholder="Napište @JohnDoe ..."
             onChange={(e) => setMessageInput(e.target.value)}
             onKeyUp={() => {
@@ -213,7 +270,12 @@ function Chat() {
             }}
             value={messageInput}
           />
-          <MdSend className="icon" onClick={onSubmit} />
+
+          {sendLoading ? (
+            <ClipLoader color="#50B661" loading={sendLoading} />
+          ) : (
+            <MdSend className="icon" onClick={onSubmit} />
+          )}
           <MdAddPhotoAlternate className="icon" />
           <AiOutlinePlusCircle className="icon" />
         </div>
@@ -236,10 +298,14 @@ export const getServerSideProps = async (ctx) => {
 
   await client.query({
     query: GetMessagesDocument,
+    variables: { chatId: ctx.params.chatId, cursor: 0 },
+    context: { headers: { Cookie } },
+  });
+  await client.query({
+    query: GetCurrentChatDocument,
     variables: { chatId: ctx.params.chatId },
     context: { headers: { Cookie } },
   });
-
   return {
     props: {
       initialApolloState: client.cache.extract(),

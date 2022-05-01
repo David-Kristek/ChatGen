@@ -2,7 +2,8 @@ import { useApolloClient } from "@apollo/client";
 import { useRouter } from "next/router";
 import React, { useEffect, useMemo, useState } from "react";
 import {
-  GetMessagesDocument,
+  GetChatsDocument,
+  GetCurrentChatDocument,
   useApproveChatMutation,
   useChatActionsSubscription,
   User,
@@ -21,18 +22,17 @@ export default function FirstMessage({ received }: Props) {
     variables: { chatId: String(query.chatId) },
     onSubscriptionData: ({ subscriptionData }) => {
       const action = subscriptionData.data?.chatActions;
-      console.log(action, "action");
       if (action === "approved") setApproved(true);
     },
   });
   useEffect(() => {
-    const { getMessages } = client.readQuery({
-      query: GetMessagesDocument,
+    const {getCurrentChat} = client.readQuery({
+      query: GetCurrentChatDocument,
       variables: {
         chatId: String(query.chatId),
       },
     });
-    setApproved(getMessages?.chat?.approved);
+    setApproved(getCurrentChat?.approved);
   }, [query]);
 
   if (approved)
@@ -69,13 +69,10 @@ export default function FirstMessage({ received }: Props) {
         </button>
         <button
           onClick={async () => {
-            console.log("aprove");
             const a = await approve({
               variables: { chatId: String(query.chatId) },
             });
-            console.log(a);
           }}
-          onMouseEnter={() => console.log("hey")}
           className="px-3 py-1 bg-green-500 hover:bg-green-600  shadow-sm shadow-white rounded-xl"
         >
           Povolit 👋

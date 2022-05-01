@@ -31,15 +31,14 @@ export const updateChat = (newMessage, apolloClient: ApolloClient<object>) => {
   });
 };
 export const addNewMessage = (prev, newMessage) => {
-  const message = { ...newMessage, createdAt: new Date() };
+  const message = {
+    ...newMessage,
+    createdAt: new Date(),
+    body: { ...newMessage.body, msg: "" },
+  };
   if (!prev) return { getMessages: [message] };
   return {
-    getMessages: {
-      ...prev.getMessages,
-      messages: prev.getMessages.messages
-        ? [...prev.getMessages.messages, message]
-        : [message],
-    },
+    getMessages: [...prev.getMessages, message],
   };
 };
 export const formatDate = (time: Date, prevTime = new Date()) => {
