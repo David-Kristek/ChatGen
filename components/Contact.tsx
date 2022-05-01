@@ -34,8 +34,6 @@ export default function Contact({ chat, index }: Props) {
       (member) => auth?.userId === member.member._id
     )?.lastActive;
     
-    console.log(new Date(lastMessage?.createdAt).getTime() >
-    new Date(userLastActivityInChat).getTime()  + 1000 , new Date(lastMessage?.createdAt), new Date(userLastActivityInChat));
     if(router.query.chatId === chat._id) return false;  
     return (
       new Date(lastMessage?.createdAt).getTime() >
@@ -54,7 +52,6 @@ export default function Contact({ chat, index }: Props) {
       query: GetMessagesDocument,
       variables: { chatId: _id },
     });
-    console.log(_id);
     if (!isChatInCache) ref.current?.complete();
   };
   return (

@@ -26,7 +26,6 @@ export default function TypingUsers({
     variables: { chatId: String(chatId) },
     onSubscriptionData: ({ subscriptionData }) => {
       const user = subscriptionData.data?.isUserTyping;
-      console.log(user, "typing");
 
       if (user?._id === auth?.userId || !user) {
         return;

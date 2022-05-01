@@ -53,7 +53,6 @@ function Chat() {
     fetchPolicy: "cache-first", // Used for first execution
     // nextFetchPolicy: "cache-only",
     onCompleted: (datas) => {
-      console.log(datas.getMessages?.length, "length");
 
       if (datas.getMessages && datas.getMessages?.length <= 14)
         setTimeout(scrollToBottom, 40);
@@ -109,7 +108,6 @@ function Chat() {
     fetchMore({
       variables: { chatId: String(chatId), cursor: data?.getMessages?.length },
       updateQuery: (prev, { fetchMoreResult }) => {
-        console.log(fetchMoreResult, "fetched more");
 
         const newMessages = fetchMoreResult?.getMessages;
         if (!newMessages || !prev.getMessages) return prev;

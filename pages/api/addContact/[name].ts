@@ -41,7 +41,6 @@ const searchForUser = async (
       ],
     }).limit(3);
 
-    console.log(users);
     // users = users.filter(user => user.email !== auth.user?.email)
     return res.status(200).json({ users });
   } catch (error: any) {

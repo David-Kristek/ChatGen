@@ -94,9 +94,7 @@ export type Subscription = {
   globalCounter?: Maybe<Message>;
   isUserTyping?: Maybe<User>;
   newChat?: Maybe<Chat>;
-  newContact?: Maybe<Message>;
   newMessage?: Maybe<Message>;
-  newMsg?: Maybe<Message>;
   nowActiveInChat?: Maybe<NowActiveInChatOutput>;
 };
 
@@ -271,16 +269,6 @@ export type ChatActionsSubscriptionVariables = Exact<{
 
 
 export type ChatActionsSubscription = { __typename?: 'Subscription', chatActions?: string | null };
-
-export type NewContactSubscriptionVariables = Exact<{ [key: string]: never; }>;
-
-
-export type NewContactSubscription = { __typename?: 'Subscription', newMessage?: { __typename?: 'message', _id: string, sendFrom: { __typename?: 'user', _id: string, name: string, image: string }, body: { __typename?: 'messageBody', text?: string | null }, chat?: { __typename?: 'chat', _id: string } | null } | null };
-
-export type NewMsgSubscriptionVariables = Exact<{ [key: string]: never; }>;
-
-
-export type NewMsgSubscription = { __typename?: 'Subscription', newMessage?: { __typename?: 'message', _id: string, sendFrom: { __typename?: 'user', _id: string, name: string, image: string }, body: { __typename?: 'messageBody', text?: string | null }, chat?: { __typename?: 'chat', _id: string } | null } | null };
 
 
 export const SendMessageDocument = gql`
@@ -825,83 +813,3 @@ export function useChatActionsSubscription(baseOptions: Apollo.SubscriptionHookO
       }
 export type ChatActionsSubscriptionHookResult = ReturnType<typeof useChatActionsSubscription>;
 export type ChatActionsSubscriptionResult = Apollo.SubscriptionResult<ChatActionsSubscription>;
-export const NewContactDocument = gql`
-    subscription newContact {
-  newMessage {
-    _id
-    sendFrom {
-      _id
-      name
-      image
-    }
-    body {
-      text
-    }
-    chat {
-      _id
-    }
-  }
-}
-    `;
-
-/**
- * __useNewContactSubscription__
- *
- * To run a query within a React component, call `useNewContactSubscription` and pass it any options that fit your needs.
- * When your component renders, `useNewContactSubscription` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useNewContactSubscription({
- *   variables: {
- *   },
- * });
- */
-export function useNewContactSubscription(baseOptions?: Apollo.SubscriptionHookOptions<NewContactSubscription, NewContactSubscriptionVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useSubscription<NewContactSubscription, NewContactSubscriptionVariables>(NewContactDocument, options);
-      }
-export type NewContactSubscriptionHookResult = ReturnType<typeof useNewContactSubscription>;
-export type NewContactSubscriptionResult = Apollo.SubscriptionResult<NewContactSubscription>;
-export const NewMsgDocument = gql`
-    subscription NewMsg {
-  newMessage {
-    _id
-    sendFrom {
-      _id
-      name
-      image
-    }
-    body {
-      text
-    }
-    chat {
-      _id
-    }
-  }
-}
-    `;
-
-/**
- * __useNewMsgSubscription__
- *
- * To run a query within a React component, call `useNewMsgSubscription` and pass it any options that fit your needs.
- * When your component renders, `useNewMsgSubscription` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useNewMsgSubscription({
- *   variables: {
- *   },
- * });
- */
-export function useNewMsgSubscription(baseOptions?: Apollo.SubscriptionHookOptions<NewMsgSubscription, NewMsgSubscriptionVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useSubscription<NewMsgSubscription, NewMsgSubscriptionVariables>(NewMsgDocument, options);
-      }
-export type NewMsgSubscriptionHookResult = ReturnType<typeof useNewMsgSubscription>;
-export type NewMsgSubscriptionResult = Apollo.SubscriptionResult<NewMsgSubscription>;

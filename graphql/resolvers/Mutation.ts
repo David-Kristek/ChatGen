@@ -31,7 +31,6 @@ export default {
       sendFrom: user._id,
       chat: chatId,
     })).save();
-    console.log(res);
 
     pubSub.publish("user:newChat", id, chat);
     pubSub.publish("user:newChat", user._id, chat);
