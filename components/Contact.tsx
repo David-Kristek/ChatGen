@@ -80,7 +80,7 @@ export default function Contact({ chat, index }: Props) {
             {lastMessage && (
               <span className="text-[#ADADAD] text-xs pt-1">
                 <span className={` text-lightgreen ${isMessageNew ? "font-extrabold" : "font-bold"} `}>
-                  {lastMessage.sendFrom.name.split(" ")[0] + ": "}
+                  {lastMessage.sendFrom._id === auth?.userId ? "Já: " : lastMessage.sendFrom.name.split(" ")[0] + ": "}
                 </span>
                 <span className={isMessageNew ? "font-bold" : ""}>
                 {truncate(String(lastMessage.body.text), 44)}

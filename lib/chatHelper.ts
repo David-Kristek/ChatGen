@@ -57,3 +57,29 @@ export const formatDate = (time: Date, prevTime = new Date()) => {
     ? format("hh:mm dd.MM.", time)
     : days[time.getDay()] + format(` hh:mm`, time);
 };
+export const chatActions = (prev, { subscriptionData }) => {
+  if (!subscriptionData) return prev;
+  // @ts-ignore
+  const action = subscriptionData.data.chatActions;
+  if (action === "approved") {
+    var newObject = JSON.parse(JSON.stringify(prev));
+    newObject.getCurrentChat.approved = true;
+    return newObject;
+  }
+  return prev;
+};
+export const memberActiveInChat = (prev, { subscriptionData }) => {
+  if (!subscriptionData) {
+    return prev;
+  }
+  let newData = JSON.parse(JSON.stringify(prev));
+  // @ts-ignore
+  const newMemberActive = subscriptionData.data.nowActiveInChat;
+
+  newData.getCurrentChat.members = prev.getCurrentChat.members.map((member) => {
+    return member.member._id === newMemberActive.userId
+      ? { ...member, lastActive: newMemberActive.active }
+      : member;
+  });
+  return newData;
+};
