@@ -7,12 +7,13 @@ import {
   useGetMessagesQuery,
   useLastActiveMutation,
 } from "../graphql/generated/schema";
-import { addNewMessage } from "../lib/chatHelper";
+import { addNewMessage, addNewMessageToAnotherChat } from "../lib/chatHelper";
 import ClipLoader from "react-spinners/ClipLoader";
 import Time from "./Time";
 import Message from "./Message";
 import ReadBy from "./ReadBy";
 import TypingUsers from "./TypingUsers";
+import { useApolloClient } from "@apollo/client";
 
 interface Props {
   chat?: Chat;
@@ -27,7 +28,7 @@ export default function ChatBody({
 }: Props) {
   const router = useRouter();
   const { data: auth } = useSession();
-
+  const apolloClinet = useApolloClient();
   const chatId = router.query.chatId as string;
   const [moreMessageLoading, setMoreMessageLoading] = useState(false);
 
@@ -43,7 +44,7 @@ export default function ChatBody({
     // nextFetchPolicy: "cache-only",
     onCompleted: (datas) => {
       if (datas.getMessages && datas.getMessages?.length <= 14)
-        setTimeout(scrollToBottom, 40);
+        setTimeout(scrollToBottom, 10);
     },
   });
   const [lastActive, { data: sent }] = useLastActiveMutation({
@@ -69,26 +70,38 @@ export default function ChatBody({
       );
     });
   };
-
-  const newMessage = useCallback((prev, { subscriptionData }) => {
+  const newMessage = (prev, { subscriptionData }) => {
     if (!subscriptionData.data) return prev;
     // @ts-ignore
-    const newMessage = subscriptionData.data.newMessage;
+    const newMessage = {
+      ...subscriptionData.data.newMessage,
+      createdAt: new Date(),
+      body: { ...subscriptionData.data.newMessage.body, msg: "" },
+    };
+
+    // the point  is that chatId is not updating after switching between pages
+    console.log(router.asPath, router.query.chatId, chatId);
 
     if (newMessage.chat._id === chatId) {
       lastActive();
+      scrollToBottom();
       return addNewMessage(prev, newMessage);
     }
+    console.log(newMessage.chat._id === chatId, "executing");
+    addNewMessageToAnotherChat(apolloClinet, newMessage.chat._id, newMessage);
     scrollToBottom();
     return prev;
-  }, []);
+  };
 
   useEffect(() => {
-    subscribeToMoreMessages({
+    const unsubscribe = subscribeToMoreMessages({
       document: NewMessageDocument,
       updateQuery: newMessage,
     });
-  }, []);
+    return () => {
+      if (unsubscribe) return unsubscribe();
+    };
+  }, [chatId]);
 
   return (
     <div

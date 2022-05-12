@@ -53,7 +53,7 @@ export default function MessageForm({approved, scrollToBottom} : Props) {
         {/* pri psani prodlouzeni inputu */}
         <input
           type="text"
-          className="input w-[85%]"
+          className={`input w-[85%] ${approved && "cursor-not-allowed"}`}
           disabled={approved ?? true}
           placeholder="Napište @JohnDoe ..."
           onChange={(e) => setMessageInput(e.target.value)}

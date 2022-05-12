@@ -56,7 +56,7 @@ export const typeDefs = gql`
     text: String
     msg: String
   }
-  input messageBodyInput {  
+  input messageBodyInput {
     text: String!
   }
   type message {

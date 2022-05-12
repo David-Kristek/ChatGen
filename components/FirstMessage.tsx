@@ -26,15 +26,14 @@ export default function FirstMessage({ received }: Props) {
     },
   });
   useEffect(() => {
-    const {getCurrentChat} = client.readQuery({
+    const getCurrentChat = client.readQuery({
       query: GetCurrentChatDocument,
       variables: {
         chatId: String(query.chatId),
       },
-    });
+    })?.getCurrentChat ?? false;
     setApproved(getCurrentChat?.approved);
   }, [query]);
-
   if (approved)
     return (
       <div className="rounded-xl bg-darkgreen overflow-hidden w-[25%]">

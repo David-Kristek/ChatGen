@@ -28,19 +28,24 @@ function Chat() {
 
   const scrollToBottom = useCallback(() => {
     if (!bottomOfChat.current) return;
+    // bottomOfChat.current.scrollIntoView({ behavior: "smooth" });
     bottomOfChat.current.scrollIntoView({ behavior: "smooth" });
   }, []);
   useEffect(() => {
-    subscribeToMoreChat({
+    if (!chatData) return;
+    const unsub = subscribeToMoreChat({
       document: MemberActiveInChatDocument,
       variables: { chatId },
       updateQuery: memberActiveInChat,
     });
-    subscribeToMoreChat({
+    const unsubs = subscribeToMoreChat({
       document: ChatActionsDocument,
       variables: { chatId },
       updateQuery: chatActions,
     });
+    return () => {
+      unsub();
+    };
   }, []);
   return (
     <>
@@ -58,31 +63,31 @@ function Chat() {
   );
 }
 export default Chat;
-export const getServerSideProps = async (ctx) => {
-  const ss = await getSession(ctx);
-  if (!ss)
-    return {
-      redirect: {
-        permanent: false,
-        destination: "/login",
-      },
-    };
-  const client = initializeApollo();
-  const Cookie = ctx.req.headers.cookie;
+// export const getServerSideProps = async (ctx) => {
+//   const ss = await getSession(ctx);
+//   if (!ss)
+//     return {
+//       redirect: {
+//         permanent: false,
+//         destination: "/login",
+//       },
+//     };
+//   const client = initializeApollo();
+//   const Cookie = ctx.req.headers.cookie;
 
-  await client.query({
-    query: GetMessagesDocument,
-    variables: { chatId: ctx.params.chatId, cursor: 0 },
-    context: { headers: { Cookie } },
-  });
-  await client.query({
-    query: GetCurrentChatDocument,
-    variables: { chatId: ctx.params.chatId },
-    context: { headers: { Cookie } },
-  });
-  return {
-    props: {
-      initialApolloState: client.cache.extract(),
-    },
-  };
-};
+//   await client.query({
+//     query: GetMessagesDocument,
+//     variables: { chatId: ctx.params.chatId, cursor: 0 },
+//     context: { headers: { Cookie } },
+//   });
+//   await client.query({
+//     query: GetCurrentChatDocument,
+//     variables: { chatId: ctx.params.chatId },
+//     context: { headers: { Cookie } },
+//   });
+//   return {
+//     props: {
+//       initialApolloState: client.cache.extract(),
+//     },
+//   };
+// };

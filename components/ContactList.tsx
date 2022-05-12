@@ -1,6 +1,7 @@
 import { useRouter } from "next/router";
 import React, { useEffect } from "react";
 import {
+  NewChatDocument,
   NewMessageDocument,
   useGetChatsQuery,
   useNewChatSubscription,
@@ -20,18 +21,17 @@ export default function ContactList() {
     }
     // subscription is sent even for the user himself
 
-    // subscribeToMore({
-    //   document: NewChatDocument,
-    //   updateQuery: (prev, { subscriptionData }) => {
-    //     return prev; 
-    //     if (!subscriptionData.data) return prev;
-    //     // @ts-ignore
-    //     const newChat = subscriptionData.data.newChat;
-    //     return {
-    //       getChats: prev.getChats ? [newChat, ...prev.getChats] : [newChat],
-    //     };
-    //   },
-    // });
+    const unsubs = subscribeToMore({
+      document: NewChatDocument,
+      updateQuery: (prev, { subscriptionData }) => {
+        if (!subscriptionData.data) return prev;
+        // @ts-ignore
+        const newChat = subscriptionData.data.newChat;
+        return {
+          getChats: prev.getChats ? [newChat, ...prev.getChats] : [newChat],
+        };
+      },
+    });
     // subscribeToMore({
     //   document: NewChatDocument,
     //   updateQuery: (prev, { subscriptionData }) => {
@@ -39,13 +39,13 @@ export default function ContactList() {
     //   },
     // });
 
-    subscribeToMore({
+    const unsub = subscribeToMore({
       document: NewMessageDocument,
       updateQuery: (prev, { subscriptionData }) => {
         let thisChat;
         console.log("updating");
         // @ts-ignore
-        const newMessage = subscriptionData.data.newMessage;
+        const newMessage = {...subscriptionData.data.newMessage, createdAt: new Date()};
         const getChats = prev.getChats;
         if (!getChats) return prev;
         let chats = getChats.filter((chat, index) => {
@@ -62,6 +62,10 @@ export default function ContactList() {
         };
       },
     });
+    return () => {
+      unsub(); 
+      // unsubs();
+    }
   }, []);
 
   return (

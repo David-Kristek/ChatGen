@@ -1,5 +1,9 @@
 import { ApolloClient } from "@apollo/client";
-import { Chat, GetChatsDocument } from "../graphql/generated/schema";
+import {
+  Chat,
+  GetChatsDocument,
+  GetMessagesDocument,
+} from "../graphql/generated/schema";
 import { DocumentNode } from "graphql";
 import format from "date-format";
 export const contactSelecter = (chat: Chat, userId: string) => {
@@ -41,6 +45,30 @@ export const addNewMessage = (prev, newMessage) => {
     getMessages: [...prev.getMessages, message],
   };
 };
+export const addNewMessageToAnotherChat = async (
+  apolloClient: ApolloClient<object>,
+  chatId: string,
+  newMessage: any
+) => {
+  const config = {
+    query: GetMessagesDocument,
+    variables: { chatId, cursor: 0 },
+  };
+  const queryData = await apolloClient.cache.readQuery(config);
+  var newData;
+  if (!queryData) newData = (await apolloClient.query(config)).data;
+  console.log(newData, "new data");
+
+  apolloClient.cache.updateQuery(config, (data) => {
+    if (!data) {
+      return newData;
+    }
+    console.log(newMessage, "new message");
+
+    return { getMessages: [...data.getMessages, newMessage] };
+  });
+};
+
 export const formatDate = (time: Date, prevTime = new Date()) => {
   const days = [
     "Monday",
@@ -58,6 +86,8 @@ export const formatDate = (time: Date, prevTime = new Date()) => {
     : days[time.getDay()] + format(` hh:mm`, time);
 };
 export const chatActions = (prev, { subscriptionData }) => {
+  console.log(subscriptionData);
+  
   if (!subscriptionData) return prev;
   // @ts-ignore
   const action = subscriptionData.data.chatActions;
