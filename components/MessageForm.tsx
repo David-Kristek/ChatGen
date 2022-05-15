@@ -34,7 +34,6 @@ export default function MessageForm({approved, scrollToBottom} : Props) {
     });
 
     await lastActive();
-    console.log("updating ");
 
     apolloClient.cache.updateQuery(
       {
@@ -61,6 +60,7 @@ export default function MessageForm({approved, scrollToBottom} : Props) {
             if (messageInput.length > 1) isTyping();
           }}
           value={messageInput}
+          cy-data="message-input"
         />
 
         {sendLoading ? (

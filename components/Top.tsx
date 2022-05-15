@@ -3,22 +3,23 @@ import React, { useMemo } from "react";
 import { contactSelecter } from "../lib/chatHelper";
 import Image from "next/image";
 import { Chat } from "../graphql/generated/schema";
-
+import { useRouter } from "next/router";
+import { FaArrowAltCircleLeft } from "react-icons/fa";
 interface Props {
-    chat?: Chat; 
-
+  chat?: Chat;
 }
 
-export default function Top({chat} : Props) {
-  const {data : auth } = useSession();  
-
+export default function Top({ chat }: Props) {
+  const { data: auth } = useSession();
+  const router = useRouter();
   const contact = useMemo(() => {
     if (!chat) return;
     return contactSelecter(chat, String(auth?.userId));
   }, [chat]);
 
   return (
-    <div className="flex-center justify-start pl-[6%] pt-5 pb-3">
+    <div className="flex-center justify-start pl-[6%]   pt-5 pb-3">
+      <FaArrowAltCircleLeft className="lg:hidden text-[42px] text-lightgreen mr-[4%]" onClick={() => router.push("/")}/>
       {contact?.image && (
         <Image
           src={contact.image}

@@ -12,6 +12,7 @@ subscription NewMessage {
     chat {
       _id
     }
+    createdAt
   }
 }
 subscription NewChat {
@@ -21,6 +22,7 @@ subscription NewChat {
       member {
         name
         image
+        _id
       }
       lastActive
     }

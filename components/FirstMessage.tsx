@@ -1,6 +1,7 @@
 import { useApolloClient } from "@apollo/client";
 import { useRouter } from "next/router";
 import React, { useEffect, useMemo, useState } from "react";
+import { useGetCurrentChatQuery } from "../graphql/generated/schema";
 import {
   GetChatsDocument,
   GetCurrentChatDocument,
@@ -17,26 +18,34 @@ export default function FirstMessage({ received }: Props) {
   const { query } = useRouter();
   const client = useApolloClient();
   const [approved, setApproved] = useState(false);
+  const { data: currentChat } = useGetCurrentChatQuery({
+    variables: { chatId: String(query.chatId) },
+    fetchPolicy: "cache-only",
+  });
   const [approve, { data }] = useApproveChatMutation();
   useChatActionsSubscription({
     variables: { chatId: String(query.chatId) },
     onSubscriptionData: ({ subscriptionData }) => {
       const action = subscriptionData.data?.chatActions;
-      if (action === "approved") setApproved(true);
+      if (action === "approved") {
+        client.cache.updateQuery(
+          {
+            query: GetCurrentChatDocument,
+            variables: { chatId: query.chatId },
+          },
+          (data) => {
+            let newObject = JSON.parse(JSON.stringify(data));
+            newObject.getCurrentChat.approved = true;
+            return newObject;
+          }
+        );
+        setApproved(true);
+      }
     },
   });
-  useEffect(() => {
-    const getCurrentChat = client.readQuery({
-      query: GetCurrentChatDocument,
-      variables: {
-        chatId: String(query.chatId),
-      },
-    })?.getCurrentChat ?? false;
-    setApproved(getCurrentChat?.approved);
-  }, [query]);
-  if (approved)
+  if (currentChat?.getCurrentChat.approved)
     return (
-      <div className="rounded-xl bg-darkgreen overflow-hidden w-[25%]">
+      <div className="rounded-xl bg-darkgreen overflow-hidden 2xl:w-[25%] w-[40%]">
         <h3 className="text-white px-5 py-2 bg-[#3C8248] text-xl">
           Chat začal
         </h3>
@@ -45,7 +54,7 @@ export default function FirstMessage({ received }: Props) {
     );
   if (!received)
     return (
-      <div className="rounded-xl bg-darkgreen overflow-hidden w-[25%]">
+      <div className="rounded-xl bg-darkgreen overflow-hidden 2xl:w-[25%] w-[40%]">
         <h3 className="text-white px-5 py-2 bg-[#3C8248] text-xl">
           Nový chat 💬
         </h3>
@@ -55,7 +64,7 @@ export default function FirstMessage({ received }: Props) {
       </div>
     );
   return (
-    <div className="rounded-xl bg-darkgreen overflow-hidden pb-2 w-[25%]">
+    <div className="rounded-xl bg-darkgreen overflow-hidden pb-2 2xl:w-[25%] w-[40%]">
       <h3 className="text-white px-5 py-2 bg-[#3C8248] text-xl">
         Nový chat 💬
       </h3>

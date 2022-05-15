@@ -44,24 +44,26 @@ export default function AddContact() {
       <div className="flex items-center pt-4 gap-x-2 relative z-0">
         <input
           type="text"
-          className="input  w-1/4"
+          className="input  2xl:w-1/4 w-3/4"
           placeholder="Jméno nebo email uživatele"
           value={search}
           onChange={(ev) => setSearch(ev.target.value)}
           autoComplete="off"
+          cy-data="searchcontact-input"
         />
         <BiSearchAlt2 className="icon" />
-        <ul className="absolute w-1/4 bg-black text-white top-14 rounded-b-lg ">
+        <ul className="absolute w-1/4 bg-black text-white top-14 rounded-b-lg " >
           {results && !loading ? (
             results === "notFound" ? (
               <li className="px-5 py-2 text-lg hover:bg-darkgreen">
                 User not found 😥
               </li>
             ) : (
-              results?.searchForUser?.map((user: User) => (
+              results?.searchForUser?.map((user: User, index) => (
                 <li
                   className="flex justify-between px-5 py-2 text-lg hover:bg-darkgreen cursor-pointer"
                   title={"#" + user?.email}
+                  key={index}
                 >
                   <span className="flex items-center gap-x-2">
                     <img
@@ -70,7 +72,7 @@ export default function AddContact() {
                       className="h-[30px] rounded-full"
                       referrerPolicy="no-referrer"
                     />
-                    <div>{user?.name}</div>
+                    <div cy-data="searchcontact-result" >{user?.name}</div>
                   </span>
                   <BiPlusCircle
                     className="icon text-2xl"
@@ -78,6 +80,7 @@ export default function AddContact() {
                       // if (!addContactLoading)
                       addContact({ variables: { addContactId: user._id } });
                     }}
+                    cy-data="plus-button"
                   />
                 </li>
               ))

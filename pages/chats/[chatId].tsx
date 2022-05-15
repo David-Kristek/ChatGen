@@ -1,6 +1,6 @@
-import React, { useRef, useEffect, useCallback } from "react";
+import React, { useRef, useEffect, useCallback, useState } from "react";
 import { useRouter } from "next/router";
-import { getSession } from "next-auth/react";
+import { getSession, useSession } from "next-auth/react";
 import {
   ChatActionsDocument,
   GetCurrentChatDocument,
@@ -12,13 +12,19 @@ import { initializeApollo } from "../../lib/apolloClient";
 import MessageForm from "../../components/MessageForm";
 import Top from "../../components/Top";
 import ChatBody from "../../components/ChatBody";
-import { chatActions, memberActiveInChat } from "../../lib/chatHelper";
+import {
+  chatActions,
+  memberActiveInChat,
+  userActiveInChat,
+} from "../../lib/chatHelper";
+import { useApolloClient } from "@apollo/client";
 
 function Chat() {
   const router = useRouter();
-
+  const { cache } = useApolloClient();
   const chatId = router.query.chatId as string;
-
+  const { data: auth } = useSession();
+  const [first, setFirst] = useState(true);
   const { data: chatData, subscribeToMore: subscribeToMoreChat } =
     useGetCurrentChatQuery({
       variables: { chatId },
@@ -28,25 +34,25 @@ function Chat() {
 
   const scrollToBottom = useCallback(() => {
     if (!bottomOfChat.current) return;
-    // bottomOfChat.current.scrollIntoView({ behavior: "smooth" });
     bottomOfChat.current.scrollIntoView({ behavior: "smooth" });
   }, []);
   useEffect(() => {
-    if (!chatData) return;
-    const unsub = subscribeToMoreChat({
+    if (!chatData || !first) return;
+    setFirst(false);
+    subscribeToMoreChat({
       document: MemberActiveInChatDocument,
       variables: { chatId },
       updateQuery: memberActiveInChat,
     });
-    const unsubs = subscribeToMoreChat({
+    subscribeToMoreChat({
       document: ChatActionsDocument,
       variables: { chatId },
       updateQuery: chatActions,
     });
-    return () => {
-      unsub();
-    };
-  }, []);
+  }, [chatData]);
+  useEffect(() => {
+    userActiveInChat(cache, auth?.userId, chatId);
+  }, [router]);
   return (
     <>
       <Top chat={chatData?.getCurrentChat} />

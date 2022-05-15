@@ -21,18 +21,19 @@ export default function CreateGroup() {
           <h2 className="text-2xl text-gray-300 mb-5">Pozvěte své kontakty</h2>
           <div className="grid grid-cols-2 w-full text-gray-400 text-xl">
             <p>David Křístek</p>
-            <MdSend className="icon ml-auto" onClick={onSubmit} />
+            <input type={"checkbox"} className="ml-auto scale-150" />
 
             <p>John Doe</p>
-            <MdSend className="icon ml-auto" onClick={onSubmit} />
+            <input type={"checkbox"} className="ml-auto scale-150" />
           </div>
         </Modal>
       )}
       <h1 className="heading mt-36">Vytvořte novou skupinu</h1>
+      {/* <p className="text-red-600 pt-1">Nepozval jste žádné kontakty!</p> */}
       <form className="pt-4" onSubmit={onSubmit}>
         <input
           type="text"
-          className="input  w-1/4"
+          className="input  2xl:w-1/4 w-3/4"
           placeholder="Název skupiny"
         />
         <button className="btn">Vyberte profilovou fotku</button>
@@ -40,7 +41,7 @@ export default function CreateGroup() {
           className={`btn ${modal && "pointer-events-none"}`}
           onClick={openModal}
         >
-          Pozvěte své kontakty{" "}
+          Pozvěte své kontakty
         </button>
         <button className="btn bg-darkgreen text-white ml-[calc(25%-88px)]">
           Potvrdit

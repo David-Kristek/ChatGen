@@ -2,6 +2,7 @@ import { ApolloClient } from "@apollo/client";
 import {
   Chat,
   GetChatsDocument,
+  GetCurrentChatDocument,
   GetMessagesDocument,
 } from "../graphql/generated/schema";
 import { DocumentNode } from "graphql";
@@ -57,13 +58,11 @@ export const addNewMessageToAnotherChat = async (
   const queryData = await apolloClient.cache.readQuery(config);
   var newData;
   if (!queryData) newData = (await apolloClient.query(config)).data;
-  console.log(newData, "new data");
 
   apolloClient.cache.updateQuery(config, (data) => {
     if (!data) {
       return newData;
     }
-    console.log(newMessage, "new message");
 
     return { getMessages: [...data.getMessages, newMessage] };
   });
@@ -87,10 +86,11 @@ export const formatDate = (time: Date, prevTime = new Date()) => {
 };
 export const chatActions = (prev, { subscriptionData }) => {
   console.log(subscriptionData);
-  
+
   if (!subscriptionData) return prev;
   // @ts-ignore
   const action = subscriptionData.data.chatActions;
+
   if (action === "approved") {
     var newObject = JSON.parse(JSON.stringify(prev));
     newObject.getCurrentChat.approved = true;
@@ -102,6 +102,7 @@ export const memberActiveInChat = (prev, { subscriptionData }) => {
   if (!subscriptionData) {
     return prev;
   }
+  
   let newData = JSON.parse(JSON.stringify(prev));
   // @ts-ignore
   const newMemberActive = subscriptionData.data.nowActiveInChat;
@@ -112,4 +113,21 @@ export const memberActiveInChat = (prev, { subscriptionData }) => {
       : member;
   });
   return newData;
+};
+export const userActiveInChat = async (cache, userId,chatId) => {
+  cache.updateQuery({ query: GetCurrentChatDocument, variables: {chatId} }, (data) => {
+    console.log(data);
+    if(!data) return
+    let newData = JSON.parse(JSON.stringify(data));
+    
+    newData.getCurrentChat.members = data.getCurrentChat.members.map(
+      (member) => {
+        return member.member._id === userId
+          ? { ...member, lastActive: new Date() }
+          : member;
+      }
+    );
+    
+    return newData; 
+  });
 };

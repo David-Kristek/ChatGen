@@ -6,10 +6,10 @@ already read vs not read             ✅
 is someone typing                    ✅
 new chat permissions                 ✅   
 pagination                           ✅
+testing                              ✅
+all page  responsive                 ✅
 group chat  
 blocking users  
-all page at least bit more responsive   
-testing     
 user status 
 
 

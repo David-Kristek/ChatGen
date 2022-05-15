@@ -64,7 +64,7 @@ export default {
 
     chat.members.forEach((member) => {
       if (String(member.member) !== user._id) {
-        pubSub.publish("user:newMessage", String(member.member), message);
+          
       }
     });
 

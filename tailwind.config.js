@@ -13,6 +13,9 @@ module.exports = {
         bluegreen: "#3CA384",
       },
     },
+    screen: {
+      xs: "400px"
+    }
   },
   plugins: [],
 };

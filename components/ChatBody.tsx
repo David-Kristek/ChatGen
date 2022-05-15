@@ -44,7 +44,7 @@ export default function ChatBody({
     // nextFetchPolicy: "cache-only",
     onCompleted: (datas) => {
       if (datas.getMessages && datas.getMessages?.length <= 14)
-        setTimeout(scrollToBottom, 10);
+        setTimeout(scrollToBottom, 10);        
     },
   });
   const [lastActive, { data: sent }] = useLastActiveMutation({
@@ -79,15 +79,11 @@ export default function ChatBody({
       body: { ...subscriptionData.data.newMessage.body, msg: "" },
     };
 
-    // the point  is that chatId is not updating after switching between pages
-    console.log(router.asPath, router.query.chatId, chatId);
-
     if (newMessage.chat._id === chatId) {
       lastActive();
       scrollToBottom();
       return addNewMessage(prev, newMessage);
     }
-    console.log(newMessage.chat._id === chatId, "executing");
     addNewMessageToAnotherChat(apolloClinet, newMessage.chat._id, newMessage);
     scrollToBottom();
     return prev;
@@ -113,7 +109,7 @@ export default function ChatBody({
       }}
       ref={messagesRef}
     >
-      {moreMessageLoading ? (
+      {moreMessageLoading && (data?.getMessages?.length ?? 0) > 13 ? (
         <ClipLoader
           color={"lightgreen"}
           loading={moreMessageLoading}

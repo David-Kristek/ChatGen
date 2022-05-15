@@ -59,24 +59,26 @@ export default function Contact({ chat, index }: Props) {
       initial={{ opacity: 0, x: -50 }}
       animate={{ opacity: 1, x: 0, transition: { delay: index * 0.1 } }}
       onClick={setTopLoading}
+      cy-data="contact"
+      
     >
       <LoadingBar color="#50B661" ref={ref} />
       <Link href={`/chats/${_id}`}>
         <div
-          className={`py-4 pr-5  flex  mx-5 items-center relative rounded-2xl text-white mb-3 group cursor-pointer hover:bg-blackgreen   ${
+          className={`py-4  pr-5  flex  2xl:mx-5 mx-2 items-center relative rounded-2xl text-white mb-3 group cursor-pointer hover:bg-blackgreen      ${
             router.query.chatId === chat._id
               ? "bg-blackop shadow-sm shadow-gray-400"
-              : "hover:shadow-md"
+              : "hover:shadow-md lg:shadow-none shadow-md shadow-black"
           }`}
         >
           <img
             src={String(contact?.image)}
             alt="Profile image"
-            className="h-[50px] rounded-full ml-14 "
+            className="2xl:h-[50px] h-[40px]  rounded-full 2xl:ml-14 ml-4"
             referrerPolicy="no-referrer"
           />
           <div className="pl-6 flex flex-col">
-            <span className={`text-xl ${isMessageNew && "font-bold"}`}>{contact?.name}</span>
+            <span className={`text-lg 2xl:text-xl ${isMessageNew && "font-bold"}`}>{contact?.name}</span>
             {lastMessage && (
               <span className="text-[#ADADAD] text-xs pt-1">
                 <span className={` text-lightgreen ${isMessageNew ? "font-extrabold" : "font-bold"} `}>

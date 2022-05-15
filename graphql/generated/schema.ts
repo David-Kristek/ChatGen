@@ -242,12 +242,12 @@ export type GetCurrentChatQuery = { __typename?: 'Query', getCurrentChat: { __ty
 export type NewMessageSubscriptionVariables = Exact<{ [key: string]: never; }>;
 
 
-export type NewMessageSubscription = { __typename?: 'Subscription', newMessage?: { __typename?: 'message', _id: string, sendFrom: { __typename?: 'user', _id: string, name: string, image: string }, body: { __typename?: 'messageBody', text?: string | null }, chat?: { __typename?: 'chat', _id: string } | null } | null };
+export type NewMessageSubscription = { __typename?: 'Subscription', newMessage?: { __typename?: 'message', _id: string, createdAt?: any | null, sendFrom: { __typename?: 'user', _id: string, name: string, image: string }, body: { __typename?: 'messageBody', text?: string | null }, chat?: { __typename?: 'chat', _id: string } | null } | null };
 
 export type NewChatSubscriptionVariables = Exact<{ [key: string]: never; }>;
 
 
-export type NewChatSubscription = { __typename?: 'Subscription', newChat?: { __typename?: 'chat', _id: string, group: boolean, name?: string | null, image?: string | null, members: Array<{ __typename?: 'member', lastActive: any, member: { __typename?: 'user', name: string, image: string } }>, lastMessage?: { __typename?: 'message', body: { __typename?: 'messageBody', text?: string | null, msg?: string | null } } | null } | null };
+export type NewChatSubscription = { __typename?: 'Subscription', newChat?: { __typename?: 'chat', _id: string, group: boolean, name?: string | null, image?: string | null, members: Array<{ __typename?: 'member', lastActive: any, member: { __typename?: 'user', name: string, image: string, _id: string } }>, lastMessage?: { __typename?: 'message', body: { __typename?: 'messageBody', text?: string | null, msg?: string | null } } | null } | null };
 
 export type MemberActiveInChatSubscriptionVariables = Exact<{
   chatId: Scalars['ID'];
@@ -652,6 +652,7 @@ export const NewMessageDocument = gql`
     chat {
       _id
     }
+    createdAt
   }
 }
     `;
@@ -685,6 +686,7 @@ export const NewChatDocument = gql`
       member {
         name
         image
+        _id
       }
       lastActive
     }

@@ -27,6 +27,7 @@ export default function ContactList() {
         if (!subscriptionData.data) return prev;
         // @ts-ignore
         const newChat = subscriptionData.data.newChat;
+        console.log(newChat);
         return {
           getChats: prev.getChats ? [newChat, ...prev.getChats] : [newChat],
         };
@@ -43,9 +44,8 @@ export default function ContactList() {
       document: NewMessageDocument,
       updateQuery: (prev, { subscriptionData }) => {
         let thisChat;
-        console.log("updating");
         // @ts-ignore
-        const newMessage = {...subscriptionData.data.newMessage, createdAt: new Date()};
+        const newMessage = subscriptionData.data.newMessage; 
         const getChats = prev.getChats;
         if (!getChats) return prev;
         let chats = getChats.filter((chat, index) => {
@@ -57,7 +57,7 @@ export default function ContactList() {
         });
         thisChat = { ...thisChat, lastMessage: newMessage };
         chats = [thisChat, ...chats];
-        return {
+        return { 
           getChats: chats,
         };
       },
