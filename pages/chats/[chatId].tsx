@@ -97,3 +97,16 @@ export default Chat;
 //     },
 //   };
 // };
+export const getServerSideProps = async (ctx) => {
+  const ss = await getSession(ctx);
+  if (!ss)
+    return {
+      redirect: {
+        permanent: false,
+        destination: "/login",
+      },
+    };
+  return {
+    props: {},
+  };
+};

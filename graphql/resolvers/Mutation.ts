@@ -10,7 +10,7 @@ import { async } from "@firebase/util";
 export default {
   addContact: async (parent, { id }, { user, pubSub }: context) => {
     const newContact = new Chat({
-      members: [ { member: user._id }, { member: id }],
+      members: [{ member: user._id }, { member: id }],
       group: false,
       lastActivity: new Date(),
     });
@@ -26,17 +26,16 @@ export default {
     );
 
     // creates first message for the chat
-    const res = await (new Message({
+    const res = await new Message({
       body: { msg: "first" },
       sendFrom: user._id,
       chat: chatId,
-    })).save();
+    }).save();
 
     pubSub.publish("user:newChat", id, chat);
     pubSub.publish("user:newChat", user._id, chat);
 
     return chat;
-
   },
   sendMessage: async (parent, { body, chatId }, { user, pubSub }: context) => {
     const chat = await Chat.findOne({
@@ -64,7 +63,7 @@ export default {
 
     chat.members.forEach((member) => {
       if (String(member.member) !== user._id) {
-          
+        pubSub.publish("user:newMessage", member.member, message);
       }
     });
 
@@ -87,27 +86,35 @@ export default {
     pubSub.publish("chat:userTyping", chatId, user);
     return true;
   },
-  approveChat: async (_, { chatId }, { user, pubSub }: context) => {    
-    const chat = await Chat.findOne({ _id: chatId });    
+  approveChat: async (_, { chatId }, { user, pubSub }: context) => {
+    const chat = await Chat.findOne({ _id: chatId });
     if (!chat) return {};
-    console.log(user._id != chat.members[1].member,user._id, chat.members[1].member );
-    
+    console.log(
+      user._id != chat.members[1].member,
+      user._id,
+      chat.members[1].member
+    );
+
     if (user._id != chat.members[1].member) return {}; // error you cant approve chat by yourselve
     const chatA = await Chat.updateOne({ _id: chatId }, { approved: true });
     pubSub.publish("chat:actions", chatId, "approved");
-    
+
     // subscribe to more
     return true;
   },
-  removeChat: async (_, { chatId }, { user, pubSub }: context) => {    
-    const chat = await Chat.findOne({ _id: chatId });    
+  removeChat: async (_, { chatId }, { user, pubSub }: context) => {
+    const chat = await Chat.findOne({ _id: chatId });
     if (!chat) return {};
-    console.log(user._id != chat.members[1].member,user._id, chat.members[1].member );
-    
+    console.log(
+      user._id != chat.members[1].member,
+      user._id,
+      chat.members[1].member
+    );
+
     if (user._id != chat.members[1].member) return {}; // error you cant delete chat by yourselve
     const chatA = await Chat.deleteOne({ _id: chatId });
     pubSub.publish("chat:actions", chatId, "removed ");
-    
+
     // subscribe to more
     return true;
   },

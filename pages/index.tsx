@@ -37,6 +37,7 @@ export const getServerSideProps = async (ctx) => {
   const ss = await getSession(ctx);
   console.log(ss);
   if (!ss)
+
     return {
       redirect: {
         permanent: false,
@@ -66,7 +67,7 @@ export const getServerSideProps = async (ctx) => {
   // };
   return {
     props: {
-      redirect: JSON.parse(JSON.stringify(redirect)),
+      redirect: JSON.parse(JSON.stringify(redirect ?? "")),
     },
   };
 };

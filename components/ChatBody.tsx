@@ -44,13 +44,18 @@ export default function ChatBody({
     // nextFetchPolicy: "cache-only",
     onCompleted: (datas) => {
       if (datas.getMessages && datas.getMessages?.length <= 14)
-        setTimeout(scrollToBottom, 10);        
+        setTimeout(scrollToBottom, 10);
     },
   });
   const [lastActive, { data: sent }] = useLastActiveMutation({
-    variables: { chatId },
+    variables: { chatId },  
   });
   const fetchMoreMessages = () => {
+    if (
+      (data?.getMessages && data.getMessages?.length <= 14) ||
+      !data?.getMessages
+    )
+      return;
     setMoreMessageLoading(true);
     let scrollPosition = messagesRef.current?.scrollHeight;
     fetchMore({
@@ -94,9 +99,6 @@ export default function ChatBody({
       document: NewMessageDocument,
       updateQuery: newMessage,
     });
-    return () => {
-      if (unsubscribe) return unsubscribe();
-    };
   }, [chatId]);
 
   return (
