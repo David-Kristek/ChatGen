@@ -51,8 +51,9 @@ export default function ChatBody({
     variables: { chatId },  
   });
   const fetchMoreMessages = () => {
+    console.log(data?.getMessages, "msg"); 
     if (
-      (data?.getMessages && data.getMessages?.length <= 14) ||
+      (data?.getMessages && data.getMessages?.length < 14) ||
       !data?.getMessages
     )
       return;
