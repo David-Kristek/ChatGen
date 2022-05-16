@@ -29,7 +29,7 @@ export default function AppContainer({ children }: Props) {
   return (
     <div className="flex z-0">
       <div
-        className={`h-[100vh] bg-darkgreen pt-5 relative z-0 2xl:w-[20vw] lg:w-[35vw] lg:block ${
+        className={`h-[100vh] bg-darkgreen pt-5 relative z-0 2xl:w-[25vw] lg:w-[35vw] lg:block ${
           menuOpened ? "w-[100vw]" : "hidden"
         } `}
       >

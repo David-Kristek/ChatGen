@@ -99,6 +99,9 @@ export default function ChatBody({
       document: NewMessageDocument,
       updateQuery: newMessage,
     });
+    return () => {
+      if(unsubscribe) unsubscribe(); 
+    }
   }, [chatId]);
 
   return (
